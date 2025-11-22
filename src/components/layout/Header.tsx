@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { ShoppingBag, Menu, Sprout } from 'lucide-react';
+import { ShoppingBag, Menu, Sprout, User } from 'lucide-react'; // <--- User ikonunu ekledik
 import Link from 'next/link';
 import { useCart } from '@/components/context/CartContext';
 import MobileMenu from './MobileMenu';
@@ -25,7 +25,7 @@ export default function Header() {
             </span>
           </Link>
 
-          {/* MENÜ LİNKLERİ (Masaüstü) - Hepsi Mağaza'ya gider */}
+          {/* MENÜ LİNKLERİ (Masaüstü) */}
           <nav className="hidden md:flex gap-8 text-stone-600 font-medium">
             <Link href="/magaza" className="hover:text-green-700 transition">Tüm Ürünler</Link>
             <Link href="/magaza" className="hover:text-green-700 transition">Meyve Fideleri</Link>
@@ -33,8 +33,15 @@ export default function Header() {
             <Link href="/magaza" className="hover:text-green-700 transition">Toprak & Gübre</Link>
           </nav>
 
-          {/* SAĞ TARAF (Sepet & Mobil Menü İkonu) */}
+          {/* SAĞ TARAF (İkonlar) */}
           <div className="flex items-center gap-4">
+            
+            {/* YENİ EKLENEN: Profil İkonu */}
+            <Link href="/hesabim" className="p-2 hover:bg-stone-200 rounded-full transition hidden md:block" title="Hesabım">
+              <User size={24} strokeWidth={1.5} />
+            </Link>
+
+            {/* Sepet Butonu */}
             <button 
               onClick={toggleCart} 
               className="p-2 hover:bg-stone-200 rounded-full transition relative"

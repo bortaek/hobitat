@@ -3,24 +3,23 @@
 import React from 'react';
 import { X, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '@/components/context/CartContext';
-import Link from 'next/link';
+import Link from 'next/link'; // <--- Link bileşenini çağırdık
 
 export default function CartSidebar() {
   const { isCartOpen, toggleCart, items, removeFromCart, totalPrice } = useCart();
 
-  // Sepet kapalıysa hiçbir şey gösterme (Performans için)
-  // Ama animasyon istiyorsak CSS ile yönetmek daha iyi, şimdilik basit yapalım:
+  // Sepet kapalıysa render etme
   if (!isCartOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex justify-end">
-      {/* KARARTMA PERDESİ (Arka plana tıklayınca kapanır) */}
+      {/* KARARTMA PERDESİ */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={toggleCart}
       ></div>
 
-      {/* ÇEKMECE (Beyaz Kutu) */}
+      {/* ÇEKMECE */}
       <div className="relative w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
         
         {/* BAŞLIK */}
@@ -48,7 +47,8 @@ export default function CartSidebar() {
             items.map((item) => (
               <div key={item.id} className="flex gap-4 group">
                 {/* Ürün Resmi */}
-                <div className="w-20 h-20 bg-stone-100 rounded-lg overflow-hidden flex-shrink-0 border border-stone-200">
+                <div className="w-20 h-20 bg-stone-100 rounded-lg overflow-hidden flex-shrink-0 border border-stone-200 relative">
+                  {/* Next/Image kullanmadık çünkü context'ten gelen veri yapısı basit img tagine daha uygun şu an */}
                   <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                 </div>
                 
@@ -74,17 +74,24 @@ export default function CartSidebar() {
           )}
         </div>
 
-        {/* ALT KISIM (Toplam & Ödeme) */}
+        {/* ALT KISIM (Toplam & Ödeme Butonu) */}
         {items.length > 0 && (
           <div className="p-6 border-t border-stone-100 bg-[#F9F8F6]">
             <div className="flex justify-between items-center mb-4 text-lg">
               <span className="text-stone-600">Ara Toplam</span>
               <span className="font-bold text-2xl text-stone-800">{totalPrice} ₺</span>
             </div>
-            <button className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-green-200 transition flex items-center justify-center gap-2">
+            
+            {/* BURASI DEĞİŞTİ: Buton yerine Link kullandık */}
+            <Link 
+              href="/odeme" 
+              onClick={toggleCart} // Sayfaya giderken sepeti kapat
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg shadow-green-200 transition flex items-center justify-center gap-2"
+            >
               Siparişi Tamamla
               <ArrowRight size={20} />
-            </button>
+            </Link>
+            
             <p className="text-center text-xs text-stone-400 mt-3">
               Kargo ve vergiler ödeme adımında hesaplanır.
             </p>
