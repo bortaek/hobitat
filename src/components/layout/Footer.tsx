@@ -32,10 +32,11 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold text-lg mb-6">Kurumsal</h4>
             <ul className="space-y-3 text-sm">
-              <li><Link href="#" className="hover:text-green-500 transition">Hakkımızda</Link></li>
+              {/* GÜNCELLENEN LİNKLER BURADA */}
+              <li><Link href="/hakkimizda" className="hover:text-green-500 transition">Hakkımızda</Link></li>
+              <li><Link href="/iletisim" className="hover:text-green-500 transition">İletişim</Link></li>
               <li><Link href="#" className="hover:text-green-500 transition">Kargo ve Teslimat</Link></li>
               <li><Link href="#" className="hover:text-green-500 transition">İade Politikası</Link></li>
-              <li><Link href="#" className="hover:text-green-500 transition">Sıkça Sorulan Sorular</Link></li>
             </ul>
           </div>
 
@@ -43,10 +44,10 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold text-lg mb-6">Kategoriler</h4>
             <ul className="space-y-3 text-sm">
-              <li><Link href="#" className="hover:text-green-500 transition">Sebze Fideleri</Link></li>
-              <li><Link href="#" className="hover:text-green-500 transition">Meyve Fideleri</Link></li>
-              <li><Link href="#" className="hover:text-green-500 transition">Süs Bitkileri</Link></li>
-              <li><Link href="#" className="hover:text-green-500 transition">Toprak & Gübre</Link></li>
+              <li><Link href="/magaza" className="hover:text-green-500 transition">Sebze Fideleri</Link></li>
+              <li><Link href="/magaza" className="hover:text-green-500 transition">Meyve Fideleri</Link></li>
+              <li><Link href="/magaza" className="hover:text-green-500 transition">Süs Bitkileri</Link></li>
+              <li><Link href="/magaza" className="hover:text-green-500 transition">Toprak & Gübre</Link></li>
             </ul>
           </div>
 
@@ -74,7 +75,7 @@ export default function Footer() {
         <div className="pt-8 border-t border-stone-800 flex flex-col md:flex-row justify-between items-center gap-4 text-xs">
           <p>&copy; 2025 Hobitat Bitki Dünyası. Tüm hakları saklıdır.</p>
           <div className="flex gap-2 opacity-50 grayscale hover:grayscale-0 transition">
-             {/* Temsili Ödeme İkonları (CSS ile yapılmış kutucuklar) */}
+             {/* Temsili Ödeme İkonları */}
              <div className="bg-white px-2 py-1 rounded text-stone-900 font-bold">VISA</div>
              <div className="bg-white px-2 py-1 rounded text-stone-900 font-bold">MasterCard</div>
              <div className="bg-white px-2 py-1 rounded text-stone-900 font-bold">Iyzico</div>

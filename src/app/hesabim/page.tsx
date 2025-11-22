@@ -5,9 +5,8 @@ import { supabase } from '@/lib/supabaseClient';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/navigation';
-import { LogOut, Package, User, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
+import { LogOut, Package, User, MapPin, Save, Loader2 } from 'lucide-react';
 
-// Sipariş Tipi
 interface Order {
   id: number;
   created_at: string;
@@ -21,45 +20,81 @@ export default function AccountPage() {
   const [user, setUser] = useState<any>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expandedOrder, setExpandedOrder] = useState<number | null>(null); // Hangi siparişin detayı açık?
+  const [saving, setSaving] = useState(false);
+
+  // Profil Bilgileri State'i
+  const [profile, setProfile] = useState({
+    full_name: "",
+    phone: "",
+    city: "",
+    address: ""
+  });
 
   useEffect(() => {
-    const checkUserAndOrders = async () => {
+    const getData = async () => {
       // 1. Kullanıcıyı Al
       const { data: { user } } = await supabase.auth.getUser();
-      
       if (!user) {
         router.push('/giris');
         return;
       }
       setUser(user);
 
-      // 2. Siparişleri Çek (E-posta eşleşmesine göre)
+      // 2. Profil Bilgilerini Çek (Varsa)
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (profileData) {
+        setProfile({
+          full_name: profileData.full_name || "",
+          phone: profileData.phone || "",
+          city: profileData.city || "",
+          address: profileData.address || ""
+        });
+      }
+
+      // 3. Siparişleri Çek
       if (user.email) {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('orders')
           .select('*')
-          .eq('customer_email', user.email) // Sadece bu kullanıcının siparişleri
-          .order('created_at', { ascending: false }); // En yeni en üstte
-
-        if (!error) setOrders(data || []);
+          .eq('customer_email', user.email)
+          .order('created_at', { ascending: false });
+        setOrders(data || []);
       }
       
       setLoading(false);
     };
 
-    checkUserAndOrders();
+    getData();
   }, [router]);
+
+  // Profil Kaydetme Fonksiyonu
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+
+    const { error } = await supabase
+      .from('profiles')
+      .upsert({ // Upsert: Varsa güncelle, yoksa ekle
+        id: user.id,
+        ...profile,
+        updated_at: new Date()
+      });
+
+    if (error) alert("Hata: " + error.message);
+    else alert("Profil güncellendi! ✅");
+    
+    setSaving(false);
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/');
     router.refresh();
-  };
-
-  const toggleOrder = (id: number) => {
-    if (expandedOrder === id) setExpandedOrder(null);
-    else setExpandedOrder(id);
   };
 
   if (loading) return <div className="min-h-screen bg-[#F9F8F6] flex items-center justify-center">Yükleniyor...</div>;
@@ -73,95 +108,80 @@ export default function AccountPage() {
 
         <div className="grid md:grid-cols-3 gap-8">
           
-          {/* SOL: Profil Kartı */}
-          <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 h-fit sticky top-24">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-700">
-                <User size={32} />
+          {/* SOL: Profil ve Adres Formu */}
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-stone-100 h-fit">
+            <div className="flex items-center gap-4 mb-6 pb-6 border-b border-stone-100">
+              <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center text-green-700">
+                <User size={28} />
               </div>
               <div className="overflow-hidden">
-                <p className="text-sm text-stone-500">Hoş Geldiniz</p>
-                <p className="font-bold text-stone-800 break-all text-sm md:text-base">{user?.email}</p>
+                <p className="text-xs text-stone-500 uppercase font-bold">Giriş Yapılan Hesap</p>
+                <p className="font-bold text-stone-800 truncate text-sm" title={user?.email}>{user?.email}</p>
               </div>
             </div>
-            <button 
-              onClick={handleLogout} 
-              className="w-full border border-stone-200 text-stone-600 py-3 rounded-xl font-bold hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition flex items-center justify-center gap-2"
-            >
-              <LogOut size={18} /> Çıkış Yap
+
+            {/* ADRES FORMU */}
+            <form onSubmit={handleSaveProfile} className="space-y-4">
+              <h3 className="font-bold text-stone-700 flex items-center gap-2">
+                <MapPin size={18} className="text-green-600"/> Teslimat Bilgileri
+              </h3>
+              
+              <div>
+                <label className="text-xs text-stone-500">Ad Soyad</label>
+                <input required type="text" className="w-full p-2 border border-stone-200 rounded-lg text-sm" 
+                  value={profile.full_name} onChange={e => setProfile({...profile, full_name: e.target.value})} />
+              </div>
+              
+              <div>
+                <label className="text-xs text-stone-500">Telefon</label>
+                <input required type="tel" className="w-full p-2 border border-stone-200 rounded-lg text-sm" 
+                  value={profile.phone} onChange={e => setProfile({...profile, phone: e.target.value})} />
+              </div>
+
+              <div>
+                <label className="text-xs text-stone-500">Şehir</label>
+                <input required type="text" className="w-full p-2 border border-stone-200 rounded-lg text-sm" 
+                  value={profile.city} onChange={e => setProfile({...profile, city: e.target.value})} />
+              </div>
+
+              <div>
+                <label className="text-xs text-stone-500">Açık Adres</label>
+                <textarea required rows={2} className="w-full p-2 border border-stone-200 rounded-lg text-sm" 
+                  value={profile.address} onChange={e => setProfile({...profile, address: e.target.value})} />
+              </div>
+
+              <button type="submit" disabled={saving} className="w-full bg-green-600 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-green-700 transition flex items-center justify-center gap-2 disabled:opacity-50">
+                {saving ? <Loader2 size={16} className="animate-spin"/> : <><Save size={16}/> Bilgileri Kaydet</>}
+              </button>
+            </form>
+
+            <button onClick={handleLogout} className="w-full mt-6 border-t border-stone-100 pt-4 text-stone-500 hover:text-red-600 text-sm font-bold flex items-center justify-center gap-2 transition">
+              <LogOut size={16} /> Çıkış Yap
             </button>
           </div>
 
           {/* SAĞ: Sipariş Geçmişi */}
           <div className="md:col-span-2">
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 min-h-[300px]">
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-stone-100 min-h-[400px]">
               <h2 className="text-xl font-bold text-stone-700 mb-6 flex items-center gap-2">
                 <Package className="text-green-600" />
                 Sipariş Geçmişim ({orders.length})
               </h2>
               
               {orders.length === 0 ? (
-                <div className="text-center py-10 text-stone-400 flex flex-col items-center">
-                  <Package size={48} className="mb-4 opacity-20" />
-                  <p>Henüz siparişiniz bulunmuyor.</p>
-                  <button onClick={() => router.push('/magaza')} className="mt-4 text-green-600 font-bold hover:underline">
-                    Alışverişe Başla
-                  </button>
-                </div>
+                <div className="text-center py-10 text-stone-400">Henüz siparişiniz yok.</div>
               ) : (
                 <div className="space-y-4">
                   {orders.map((order) => (
-                    <div key={order.id} className="border border-stone-100 rounded-2xl overflow-hidden">
-                      
-                      {/* Sipariş Başlığı (Tıklanabilir) */}
-                      <div 
-                        onClick={() => toggleOrder(order.id)}
-                        className="bg-stone-50 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center cursor-pointer hover:bg-stone-100 transition gap-4"
-                      >
-                        <div className="flex gap-4 items-center">
-                          <div className="bg-white p-2 rounded-lg border border-stone-200">
-                            <Calendar size={20} className="text-stone-400" />
-                          </div>
-                          <div>
-                            <p className="font-bold text-stone-800">Sipariş #{order.id}</p>
-                            <p className="text-xs text-stone-500">{new Date(order.created_at).toLocaleDateString('tr-TR')}</p>
-                          </div>
+                    <div key={order.id} className="border border-stone-100 rounded-2xl p-4 hover:bg-stone-50 transition">
+                      <div className="flex justify-between items-center mb-3">
+                        <div>
+                          <span className="font-bold text-stone-800">#{order.id}</span>
+                          <span className="text-xs text-stone-400 ml-2">{new Date(order.created_at).toLocaleDateString('tr-TR')}</span>
                         </div>
-
-                        <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end">
-                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                            order.status === 'Teslim Edildi' ? 'bg-green-100 text-green-700' :
-                            order.status === 'İptal' ? 'bg-red-100 text-red-700' :
-                            'bg-yellow-100 text-yellow-700'
-                          }`}>
-                            {order.status}
-                          </span>
-                          <span className="font-bold text-stone-700">{order.total_price} ₺</span>
-                          {expandedOrder === order.id ? <ChevronUp size={18} className="text-stone-400"/> : <ChevronDown size={18} className="text-stone-400"/>}
-                        </div>
+                        <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-bold">{order.status}</span>
                       </div>
-
-                      {/* Sipariş Detayı (Açılır Kısım) */}
-                      {expandedOrder === order.id && (
-                        <div className="p-4 bg-white border-t border-stone-100 animate-in slide-in-from-top-2 duration-200">
-                          <p className="text-xs font-bold text-stone-400 uppercase mb-3">Ürünler</p>
-                          <div className="space-y-3">
-                            {order.items.map((item: any, idx: number) => (
-                              <div key={idx} className="flex items-center justify-between text-sm">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 bg-stone-100 rounded overflow-hidden relative">
-                                    <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                                  </div>
-                                  <span className="text-stone-700 font-medium">
-                                    {item.title} <span className="text-stone-400">x{item.quantity}</span>
-                                  </span>
-                                </div>
-                                <span className="font-bold text-stone-600">{item.price * item.quantity} ₺</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                      <p className="text-sm text-stone-500">Toplam: <span className="font-bold text-green-700">{order.total_price} ₺</span></p>
                     </div>
                   ))}
                 </div>
