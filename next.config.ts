@@ -5,7 +5,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "images.unsplash.com", // Unsplash'e izin verdik
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "rflpqejsnhzgyjrjyikt.supabase.co", // <--- SENİN SUPABASE ADRESİN
       },
     ],
   },
