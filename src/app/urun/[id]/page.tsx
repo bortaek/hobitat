@@ -3,6 +3,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { Star, Truck, ShieldCheck, ArrowLeft, Minus, Plus } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import AddToCartButton from '@/components/products/AddToCartButton';
 import { supabase } from '@/lib/supabaseClient';
 import { Metadata } from 'next';
@@ -91,10 +92,14 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
           
           {/* SOL: RESİM */}
           <div className="relative rounded-2xl overflow-hidden h-[400px] md:h-[500px] bg-stone-100 group">
-            <img 
+            <Image 
               src={product.image_url}
-              alt={product.title} 
-              className="w-full h-full object-cover group-hover:scale-105 transition duration-700"
+              alt={product.title}
+              fill
+              className="object-cover group-hover:scale-105 transition duration-700"
+              sizes="(max-width: 768px) 100vw, 50vw"
+              key={product.image_url}
+              unoptimized
             />
             <span className="absolute top-4 left-4 bg-green-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
               {product.category}

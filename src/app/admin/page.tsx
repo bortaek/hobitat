@@ -60,6 +60,7 @@ export default function AdminPage() {
   const [formData, setFormData] = useState({ title: "", category: "", price: "", description: "" });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   
   // Blog Form State'leri
   const [isBlogFormOpen, setIsBlogFormOpen] = useState(false);
@@ -227,25 +228,46 @@ export default function AdminPage() {
 
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!imageFile) return alert("Resim seçiniz!");
     setIsSaving(true);
 
     try {
-      const fileExt = imageFile.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      await supabase.storage.from('product-images').upload(fileName, imageFile);
-      const { data: { publicUrl } } = supabase.storage.from('product-images').getPublicUrl(fileName);
+      let imageUrl = editingProduct?.image_url || "";
 
-      const newProduct = {
+      // Eğer yeni resim seçildiyse yükle
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        await supabase.storage.from('product-images').upload(fileName, imageFile);
+        const { data: { publicUrl } } = supabase.storage.from('product-images').getPublicUrl(fileName);
+        imageUrl = publicUrl;
+      } else if (editingProduct && !imageFile) {
+        // Düzenleme modunda ve resim değişmediyse mevcut resmi kullan
+        imageUrl = editingProduct.image_url;
+      } else {
+        // Yeni ürün eklerken resim zorunlu
+        return alert("Resim seçiniz!");
+      }
+
+      const productData = {
         title: formData.title,
         category: formData.category,
         price: parseFloat(formData.price),
-        image_url: publicUrl,
+        image_url: imageUrl,
         description: formData.description
       };
 
-      await supabase.from('products').insert([newProduct]);
+      if (editingProduct) {
+        // Güncelle
+        await supabase.from('products').update(productData).eq('id', editingProduct.id);
+        alert("Ürün güncellendi!");
+      } else {
+        // Yeni ekle
+        await supabase.from('products').insert([productData]);
+        alert("Ürün eklendi!");
+      }
+
       setIsFormOpen(false);
+      setEditingProduct(null);
       fetchProducts();
       
       setFormData({ title: "", category: "", price: "", description: "" });
@@ -265,6 +287,27 @@ export default function AdminPage() {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
+  };
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setFormData({
+      title: product.title,
+      category: product.category,
+      price: product.price.toString(),
+      description: product.description || ""
+    });
+    setImagePreview(product.image_url);
+    setImageFile(null); // Yeni resim seçilmedi, mevcut resim kullanılacak
+    setIsFormOpen(true);
+  };
+
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditingProduct(null);
+    setFormData({ title: "", category: "", price: "", description: "" });
+    setImageFile(null);
+    setImagePreview(null);
   };
 
   // Blog Yönetimi Fonksiyonları
@@ -412,7 +455,7 @@ export default function AdminPage() {
           <>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-stone-700">Ürün Listesi</h2>
-              <button onClick={() => setIsFormOpen(true)} className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700">
+              <button onClick={() => { setEditingProduct(null); setFormData({ title: "", category: "", price: "", description: "" }); setImageFile(null); setImagePreview(null); setIsFormOpen(true); }} className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700">
                 <Plus size={20} /> Yeni Ürün
               </button>
             </div>
@@ -427,7 +470,16 @@ export default function AdminPage() {
                       <td className="p-4"><div className="w-10 h-10 bg-stone-100 rounded overflow-hidden relative"><Image src={p.image_url} alt={p.title} fill className="object-cover"/></div></td>
                       <td className="p-4 font-medium">{p.title}</td>
                       <td className="p-4">{p.price} ₺</td>
-                      <td className="p-4 text-right"><button onClick={() => handleDeleteProduct(p.id)} className="text-red-500"><Trash2 size={18} /></button></td>
+                      <td className="p-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button onClick={() => handleEditProduct(p)} className="text-blue-500 hover:text-blue-700" title="Düzenle">
+                            <Edit size={18} />
+                          </button>
+                          <button onClick={() => handleDeleteProduct(p.id)} className="text-red-500 hover:text-red-700" title="Sil">
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -586,7 +638,12 @@ export default function AdminPage() {
                       <td className="p-4">
                         <div className="w-16 h-16 bg-stone-100 rounded overflow-hidden relative">
                           {blog.featured_image ? (
-                            <Image src={blog.featured_image} alt={blog.title} fill className="object-cover"/>
+                            <img 
+                              src={`${blog.featured_image}?v=${blog.id}`} 
+                              alt={blog.title} 
+                              className="w-full h-full object-cover"
+                              key={`${blog.id}-${blog.featured_image}`}
+                            />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-xs text-stone-400">No Img</div>
                           )}
@@ -1138,6 +1195,17 @@ export default function AdminPage() {
                   value={blogFormData.featured_image}
                   onChange={(e) => setBlogFormData({...blogFormData, featured_image: e.target.value})}
                 />
+                {blogFormData.featured_image && (
+                  <div className="mt-3 relative h-48 w-full border border-stone-200 rounded-xl overflow-hidden bg-stone-100">
+                    <Image
+                      src={blogFormData.featured_image}
+                      alt="Önizleme"
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  </div>
+                )}
                 <p className="text-xs text-stone-500 mt-1">
                   Unsplash'den resim alabilirsiniz. Örnek: 
                   <a href="https://unsplash.com" target="_blank" className="text-green-600 hover:underline ml-1">unsplash.com</a>
@@ -1219,13 +1287,13 @@ export default function AdminPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
             <div className="px-6 py-4 border-b border-stone-100 flex justify-between items-center bg-stone-50 sticky top-0 z-10">
-              <h3 className="text-lg font-bold text-stone-800">Yeni Ürün Ekle</h3>
-              <button onClick={() => setIsFormOpen(false)} className="p-2 hover:bg-stone-200 rounded-full transition"><X size={20} className="text-stone-500" /></button>
+              <h3 className="text-lg font-bold text-stone-800">{editingProduct ? "Ürün Düzenle" : "Yeni Ürün Ekle"}</h3>
+              <button onClick={handleCloseForm} className="p-2 hover:bg-stone-200 rounded-full transition"><X size={20} className="text-stone-500" /></button>
             </div>
             <form onSubmit={handleSaveProduct} className="p-6 space-y-4">
               {/* Resim Yükleme */}
               <div>
-                <label className="block text-sm font-medium text-stone-600 mb-2">Ürün Resmi</label>
+                <label className="block text-sm font-medium text-stone-600 mb-2">Ürün Resmi {editingProduct && <span className="text-xs text-stone-400">(Değiştirmek için yeni resim seçin)</span>}</label>
                 <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-stone-300 border-dashed rounded-xl cursor-pointer bg-stone-50 hover:bg-stone-100 transition relative overflow-hidden">
                   {imagePreview ? <Image src={imagePreview} alt="Önizleme" fill className="object-cover" /> : <div className="flex flex-col items-center"><UploadCloud size={32} className="text-stone-400 mb-2" /><p className="text-sm text-stone-500">Resim Yükle</p></div>}
                   <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />

@@ -41,3 +41,5 @@ WHERE slug = 'tarlada-fide-yetistiriciligi-profesyonel-rehber';
 
 -- PARÇA 2 TAMAMLANDI (Blog 6-10)
 
+
+

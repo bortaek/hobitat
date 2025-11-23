@@ -41,3 +41,5 @@ WHERE slug = 'patlican-fidesi-bakimi-ve-yetistirme-ipuclari';
 
 -- PARÇA 1 TAMAMLANDI (Blog 1-5)
 
+
+

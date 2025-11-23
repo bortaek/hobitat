@@ -1,7 +1,6 @@
 import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import Image from 'next/image';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabaseClient';
 import { ArrowLeft, Calendar, User, Tag, Eye } from 'lucide-react';
@@ -23,6 +22,7 @@ interface Blog {
 
 async function getBlog(slug: string): Promise<Blog | null> {
   try {
+    // Cache'i bypass etmek için her seferinde yeni bir client oluşturuyoruz
     const { data, error } = await supabase
       .from('blogs')
       .select('*')
@@ -31,6 +31,7 @@ async function getBlog(slug: string): Promise<Blog | null> {
       .single();
 
     if (error || !data) {
+      console.error('Blog çekilirken hata:', error);
       return null;
     }
 
@@ -39,6 +40,12 @@ async function getBlog(slug: string): Promise<Blog | null> {
       .from('blogs')
       .update({ views: (data.views || 0) + 1 })
       .eq('id', data.id);
+
+    // Debug: Resim URL'ini logla
+    console.log('🔍 Blog çekildi:', data.title);
+    console.log('🖼️ Resim URL:', data.featured_image);
+    console.log('📝 Slug:', data.slug);
+    console.log('🆔 ID:', data.id);
 
     return data;
   } catch (err) {
@@ -63,6 +70,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     keywords: blog.keywords?.join(', '),
   };
 }
+
+// Cache'i devre dışı bırak - her zaman güncel veri çek
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 export default async function BlogDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -105,12 +116,12 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
           {/* Kapak Görseli */}
           {blog.featured_image && (
             <div className="relative h-96 w-full bg-gray-200">
-              <Image
-                src={blog.featured_image}
+              <img
+                src={`${blog.featured_image}?v=${blog.id}`}
                 alt={blog.title}
-                fill
-                className="object-cover"
-                priority
+                className="w-full h-full object-cover"
+                key={`img-${blog.id}-${blog.featured_image}`}
+                loading="eager"
               />
             </div>
           )}
@@ -193,4 +204,6 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
     </main>
   );
 }
+
+
 

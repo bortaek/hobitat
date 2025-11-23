@@ -41,3 +41,5 @@ WHERE slug = 'kis-aylarinda-bahce-serada-ve-ic-mekanda-yetistirme';
 
 -- PARÇA 4 TAMAMLANDI (Blog 16-20)
 
+
+

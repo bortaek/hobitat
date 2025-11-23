@@ -41,3 +41,5 @@ WHERE slug = 'bahce-planlama-fide-duzeni-ve-rotasyon-sistemi';
 
 -- PARÇA 5 TAMAMLANDI (Blog 21-25)
 
+
+

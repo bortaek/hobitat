@@ -427,3 +427,5 @@ ON CONFLICT (slug) DO NOTHING;
 -- Her blog SEO odaklı anahtar kelimeler içeriyor
 -- Farklı kategoriler: Rehber, Bakım, İpuçları
 
+
+

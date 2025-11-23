@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import Image from 'next/image';
 import Link from 'next/link';
 import { Search, Calendar, User, Tag } from 'lucide-react';
 
@@ -50,6 +49,18 @@ export default function BlogPage() {
         console.error('Bloglar çekilirken hata:', error);
         setBlogs([]);
       } else {
+        // Debug: Salatalık blogunu özellikle kontrol et
+        const salatalikBlog = data?.find(b => 
+          b.title?.toLowerCase().includes('salatalık') || 
+          b.title?.toLowerCase().includes('salatalik') ||
+          b.slug?.includes('salatalik')
+        );
+        if (salatalikBlog) {
+          console.log('🥒 SALATALIK BLOG BULUNDU:');
+          console.log('   Başlık:', salatalikBlog.title);
+          console.log('   Resim URL:', salatalikBlog.featured_image);
+          console.log('   Slug:', salatalikBlog.slug);
+        }
         setBlogs(data || []);
         setFilteredBlogs(data || []);
       }
@@ -186,11 +197,12 @@ export default function BlogPage() {
               >
                 <div className="relative h-48 bg-gray-200 overflow-hidden">
                   {blog.featured_image ? (
-                    <Image
-                      src={blog.featured_image}
+                    <img
+                      src={`${blog.featured_image}?v=${blog.id}`}
                       alt={blog.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      key={`img-${blog.id}-${blog.featured_image}`}
+                      loading="lazy"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-400">Resim Yok</div>

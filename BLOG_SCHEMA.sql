@@ -57,3 +57,5 @@ ON CONFLICT (slug) DO NOTHING;
 -- 4. Tablonun oluşturulduğunu kontrol etmek için:
 -- SELECT * FROM blogs;
 
+
+

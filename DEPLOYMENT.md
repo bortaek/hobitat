@@ -119,3 +119,5 @@ Netlify kullanıyorsanız:
 - Production build'i local'de test etmek için: `npm run build && npm start`
 - Cookie'ler sadece HTTPS üzerinde çalışır (production'da)
 
+
+

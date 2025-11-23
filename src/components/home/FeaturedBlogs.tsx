@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { supabase } from '@/lib/supabaseClient';
 import { Calendar, ArrowRight, Tag } from 'lucide-react';
 
@@ -30,12 +29,26 @@ async function getFeaturedBlogs() {
       return [];
     }
 
+    // Debug: Tüm blogların resimlerini logla
+    if (data && data.length > 0) {
+      console.log('🔍 Featured Blogs Çekildi:');
+      data.forEach((blog, index) => {
+        console.log(`${index + 1}. ${blog.title}`);
+        console.log(`   🖼️ Resim: ${blog.featured_image}`);
+        console.log(`   📝 Slug: ${blog.slug}`);
+      });
+    }
+
     return data as Blog[];
   } catch (err) {
     console.error('Beklenmeyen hata:', err);
     return [];
   }
 }
+
+// Cache'i devre dışı bırak - her zaman güncel veri çek
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 export default async function FeaturedBlogs() {
   const blogs = await getFeaturedBlogs();
@@ -78,11 +91,12 @@ export default async function FeaturedBlogs() {
               {/* Resim */}
               <div className="relative h-48 bg-stone-200 overflow-hidden">
                 {blog.featured_image ? (
-                  <Image
-                    src={blog.featured_image}
+                  <img
+                    src={`${blog.featured_image}?v=${blog.id}`}
                     alt={blog.title}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    key={`img-${blog.id}-${blog.featured_image}`}
+                    loading="lazy"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400 bg-stone-100">
@@ -161,4 +175,6 @@ export default async function FeaturedBlogs() {
     </section>
   );
 }
+
+
 

@@ -41,3 +41,5 @@ WHERE slug = 'sogan-ve-sarimsak-yetistirme-baslangic-rehberi';
 
 -- PARÇA 3 TAMAMLANDI (Blog 11-15)
 
+
+
