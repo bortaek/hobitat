@@ -106,9 +106,9 @@ export default function FeaturedProducts() {
                   id={product.id}
                   title={product.title}
                   category={product.category}
-                  price={product.price.toString()} 
+                  price={product.price.toString()}
                   image={product.image_url}
-                  stock={product.stock}
+                  {...(product.stock !== undefined && { stock: product.stock })}
                 />
               </motion.div>
             ))}
