@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { Trash2, Plus, Edit, LogOut, Package, X, Save, Loader2, UploadCloud, ShoppingBag, ChevronDown, ChevronUp, MapPin, Mail, User, Settings, FileText } from 'lucide-react';
+import { Trash2, Plus, Edit, LogOut, Package, X, Save, Loader2, UploadCloud, ShoppingBag, ChevronDown, ChevronUp, MapPin, Mail, User, Settings, FileText, Users, BarChart2, AlertTriangle, CheckSquare, Square, TrendingUp, DollarSign, Search, Filter } from 'lucide-react';
 import Image from 'next/image';
 
 // TİPLER
@@ -52,6 +52,15 @@ export default function AdminPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(false);
   
+  // Toplu İşlem State'leri
+  const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
+  const [bulkStockValue, setBulkStockValue] = useState("");
+  const [isBulkStockModalOpen, setIsBulkStockModalOpen] = useState(false);
+
+  // Filtreleme State'leri
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>("all");
+  const [productSearch, setProductSearch] = useState("");
+
   // Sipariş Detayını Açıp Kapatmak İçin
   const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
 
@@ -85,6 +94,7 @@ export default function AdminPage() {
     if (password === "admin123") { 
       setIsAuthenticated(true);
       fetchProducts();
+      fetchOrders(); // Analitik için gerekli
     } else {
       alert("Hatalı Şifre!");
     }
@@ -117,6 +127,99 @@ export default function AdminPage() {
     if (tab === "orders") fetchOrders();
     if (tab === "blogs") fetchBlogs();
     if (tab === "settings") fetchSiteSettings();
+    if (tab === "analytics" || tab === "customers") {
+      fetchOrders();
+      fetchProducts();
+    }
+  };
+
+  // Analitik Verileri
+  const analytics = useMemo(() => {
+    const totalRevenue = orders.reduce((sum, order) => sum + order.total_price, 0);
+    const totalOrders = orders.length;
+    const uniqueCustomers = new Set(orders.map(o => o.customer_email)).size;
+    const lowStockProducts = products.filter(p => (p.stock || 0) < 10).length;
+    
+    const revenueByDay = orders.reduce((acc: any, order) => {
+      const date = new Date(order.created_at).toLocaleDateString('tr-TR');
+      acc[date] = (acc[date] || 0) + order.total_price;
+      return acc;
+    }, {});
+
+    return { totalRevenue, totalOrders, uniqueCustomers, lowStockProducts, revenueByDay };
+  }, [orders, products]);
+
+  // Müşteri Listesi
+  const customers = useMemo(() => {
+    const customerMap = new Map();
+    
+    orders.forEach(order => {
+      if (!customerMap.has(order.customer_email)) {
+        customerMap.set(order.customer_email, {
+          name: order.customer_name,
+          email: order.customer_email,
+          totalSpent: 0,
+          orderCount: 0,
+          lastOrderDate: order.created_at,
+          address: order.address
+        });
+      }
+      
+      const customer = customerMap.get(order.customer_email);
+      customer.totalSpent += order.total_price;
+      customer.orderCount += 1;
+      if (new Date(order.created_at) > new Date(customer.lastOrderDate)) {
+        customer.lastOrderDate = order.created_at;
+      }
+    });
+
+    return Array.from(customerMap.values());
+  }, [orders]);
+
+  // Toplu İşlemler
+  const toggleSelectProduct = (id: number) => {
+    if (selectedProducts.includes(id)) {
+      setSelectedProducts(selectedProducts.filter(pid => pid !== id));
+    } else {
+      setSelectedProducts([...selectedProducts, id]);
+    }
+  };
+
+  const selectAllProducts = () => {
+    if (selectedProducts.length === products.length) {
+      setSelectedProducts([]);
+    } else {
+      setSelectedProducts(products.map(p => p.id));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!confirm(`${selectedProducts.length} ürünü silmek istediğinize emin misiniz?`)) return;
+    
+    const { error } = await supabase.from('products').delete().in('id', selectedProducts);
+    if (error) {
+      alert('Hata: ' + error.message);
+    } else {
+      setProducts(products.filter(p => !selectedProducts.includes(p.id)));
+      setSelectedProducts([]);
+      alert('Ürünler silindi.');
+    }
+  };
+
+  const handleBulkStockUpdate = async () => {
+    const newStock = parseInt(bulkStockValue);
+    if (isNaN(newStock)) return alert('Geçerli bir sayı giriniz.');
+    
+    const { error } = await supabase.from('products').update({ stock: newStock }).in('id', selectedProducts);
+    if (error) {
+      alert('Hata: ' + error.message);
+    } else {
+      setProducts(products.map(p => selectedProducts.includes(p.id) ? { ...p, stock: newStock } : p));
+      setIsBulkStockModalOpen(false);
+      setSelectedProducts([]);
+      setBulkStockValue("");
+      alert('Stoklar güncellendi.');
+    }
   };
 
   // Site Ayarları State'leri
@@ -444,6 +547,8 @@ export default function AdminPage() {
           <div className="flex bg-stone-100 p-1 rounded-lg">
             <button onClick={() => handleTabChange("products")} className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === "products" ? "bg-white shadow text-stone-800" : "text-stone-500"}`}>Ürünler</button>
             <button onClick={() => handleTabChange("orders")} className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === "orders" ? "bg-white shadow text-stone-800" : "text-stone-500"}`}>Siparişler</button>
+            <button onClick={() => handleTabChange("customers")} className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === "customers" ? "bg-white shadow text-stone-800" : "text-stone-500"}`}><Users size={16} className="inline mr-1" />Müşteriler</button>
+            <button onClick={() => handleTabChange("analytics")} className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === "analytics" ? "bg-white shadow text-stone-800" : "text-stone-500"}`}><BarChart2 size={16} className="inline mr-1" />Raporlar</button>
             <button onClick={() => handleTabChange("blogs")} className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === "blogs" ? "bg-white shadow text-stone-800" : "text-stone-500"}`}><FileText size={16} className="inline mr-1" />Bloglar</button>
             <button onClick={() => handleTabChange("settings")} className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === "settings" ? "bg-white shadow text-stone-800" : "text-stone-500"}`}><Settings size={16} className="inline mr-1" />Site Ayarları</button>
           </div>
@@ -456,58 +561,266 @@ export default function AdminPage() {
         {/* --- ÜRÜNLER TABLOSU --- */}
         {activeTab === "products" && (
           <>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-stone-700">Ürün Listesi</h2>
-              <button onClick={() => { setEditingProduct(null); setFormData({ title: "", category: "", price: "", description: "", stock: "" }); setImageFile(null); setImagePreview(null); setIsFormOpen(true); }} className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700">
-                <Plus size={20} /> Yeni Ürün
-              </button>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-stone-700">Ürün Listesi</h2>
+                <p className="text-stone-500 text-sm">{products.length} ürün listeleniyor</p>
+              </div>
+              <div className="flex gap-2 w-full md:w-auto">
+                <div className="relative flex-1 md:w-64">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-stone-400" size={18} />
+                  <input 
+                    type="text" 
+                    placeholder="Ürün ara..." 
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none"
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                  />
+                </div>
+                <button onClick={() => { setEditingProduct(null); setFormData({ title: "", category: "", price: "", description: "", stock: "" }); setImageFile(null); setImagePreview(null); setIsFormOpen(true); }} className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700 whitespace-nowrap">
+                  <Plus size={20} /> <span className="hidden md:inline">Yeni Ürün</span>
+                </button>
+              </div>
             </div>
+
+            {selectedProducts.length > 0 && (
+              <div className="bg-green-50 border border-green-200 p-4 rounded-xl mb-4 flex items-center justify-between animate-in slide-in-from-top-2">
+                <div className="flex items-center gap-2">
+                  <CheckSquare className="text-green-600" size={20} />
+                  <span className="font-medium text-green-800">{selectedProducts.length} ürün seçildi</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => setIsBulkStockModalOpen(true)}
+                    className="bg-white text-green-700 border border-green-200 hover:bg-green-100 px-4 py-2 rounded-lg text-sm font-bold transition"
+                  >
+                    Stok Güncelle
+                  </button>
+                  <button 
+                    onClick={handleBulkDelete}
+                    className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 px-4 py-2 rounded-lg text-sm font-bold transition"
+                  >
+                    Seçilenleri Sil
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-stone-50 text-stone-500 font-medium border-b border-stone-200">
+                    <tr>
+                      <th className="p-4 w-10">
+                        <button onClick={selectAllProducts} className="text-stone-400 hover:text-stone-600">
+                          {selectedProducts.length === products.length && products.length > 0 ? <CheckSquare size={20} /> : <Square size={20} />}
+                        </button>
+                      </th>
+                      <th className="p-4">Resim</th>
+                      <th className="p-4">Ad</th>
+                      <th className="p-4">Fiyat</th>
+                      <th className="p-4">Stok</th>
+                      <th className="p-4 text-right">İşlem</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-stone-100">
+                    {products.filter(p => p.title.toLowerCase().includes(productSearch.toLowerCase())).map(p => (
+                      <tr key={p.id} className={selectedProducts.includes(p.id) ? "bg-green-50/30" : ""}>
+                        <td className="p-4">
+                          <button onClick={() => toggleSelectProduct(p.id)} className={`transition ${selectedProducts.includes(p.id) ? "text-green-600" : "text-stone-300 hover:text-stone-400"}`}>
+                            {selectedProducts.includes(p.id) ? <CheckSquare size={20} /> : <Square size={20} />}
+                          </button>
+                        </td>
+                        <td className="p-4"><div className="w-10 h-10 bg-stone-100 rounded overflow-hidden relative"><Image src={p.image_url} alt={p.title} fill className="object-cover"/></div></td>
+                        <td className="p-4 font-medium">{p.title}</td>
+                        <td className="p-4">{p.price} ₺</td>
+                        <td className="p-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            (p.stock || 0) === 0 
+                              ? 'bg-red-100 text-red-700' 
+                              : (p.stock || 0) < 10 
+                              ? 'bg-yellow-100 text-yellow-700' 
+                              : 'bg-green-100 text-green-700'
+                          }`}>
+                            {p.stock || 0} adet
+                          </span>
+                        </td>
+                        <td className="p-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button onClick={() => handleEditProduct(p)} className="text-blue-500 hover:text-blue-700" title="Düzenle">
+                              <Edit size={18} />
+                            </button>
+                            <button onClick={() => handleDeleteProduct(p.id)} className="text-red-500 hover:text-red-700" title="Sil">
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* --- MÜŞTERİ YÖNETİMİ --- */}
+        {activeTab === "customers" && (
+          <>
+            <h2 className="text-2xl font-bold text-stone-700 mb-6">Müşteri Yönetimi</h2>
             <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
               <table className="w-full text-left">
                 <thead className="bg-stone-50 text-stone-500 font-medium border-b border-stone-200">
-                  <tr><th className="p-4">Resim</th><th className="p-4">Ad</th><th className="p-4">Fiyat</th><th className="p-4">Stok</th><th className="p-4 text-right">İşlem</th></tr>
+                  <tr>
+                    <th className="p-4">Müşteri</th>
+                    <th className="p-4">İletişim</th>
+                    <th className="p-4">Toplam Sipariş</th>
+                    <th className="p-4">Toplam Harcama</th>
+                    <th className="p-4">Son Sipariş</th>
+                  </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
-                  {products.map(p => (
-                    <tr key={p.id}>
-                      <td className="p-4"><div className="w-10 h-10 bg-stone-100 rounded overflow-hidden relative"><Image src={p.image_url} alt={p.title} fill className="object-cover"/></div></td>
-                      <td className="p-4 font-medium">{p.title}</td>
-                      <td className="p-4">{p.price} ₺</td>
+                  {customers.map((customer: any, idx) => (
+                    <tr key={idx} className="hover:bg-stone-50">
+                      <td className="p-4 font-medium text-stone-800">{customer.name}</td>
+                      <td className="p-4 text-stone-600">
+                        <div className="text-sm">{customer.email}</div>
+                        <div className="text-xs text-stone-400 mt-1">{customer.address?.substring(0, 30)}...</div>
+                      </td>
                       <td className="p-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          (p.stock || 0) === 0 
-                            ? 'bg-red-100 text-red-700' 
-                            : (p.stock || 0) < 10 
-                            ? 'bg-yellow-100 text-yellow-700' 
-                            : 'bg-green-100 text-green-700'
-                        }`}>
-                          {p.stock || 0} adet
+                        <span className="px-3 py-1 bg-stone-100 rounded-full text-xs font-bold text-stone-600">
+                          {customer.orderCount} Sipariş
                         </span>
                       </td>
-                      <td className="p-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <button onClick={() => handleEditProduct(p)} className="text-blue-500 hover:text-blue-700" title="Düzenle">
-                            <Edit size={18} />
-                          </button>
-                          <button onClick={() => handleDeleteProduct(p.id)} className="text-red-500 hover:text-red-700" title="Sil">
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
+                      <td className="p-4 font-bold text-green-600">{customer.totalSpent} ₺</td>
+                      <td className="p-4 text-sm text-stone-500">
+                        {new Date(customer.lastOrderDate).toLocaleDateString('tr-TR')}
                       </td>
                     </tr>
                   ))}
+                  {customers.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="text-center py-8 text-stone-400">Henüz müşteri kaydı bulunmuyor.</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
           </>
         )}
 
+        {/* --- RAPORLAR VE ANALİTİK --- */}
+        {activeTab === "analytics" && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-stone-700 mb-2">Raporlar ve Analitik</h2>
+            
+            {/* Özet Kartları */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-stone-500 font-medium text-sm">Toplam Ciro</h3>
+                  <div className="p-2 bg-green-100 rounded-lg text-green-600"><DollarSign size={20} /></div>
+                </div>
+                <p className="text-3xl font-bold text-stone-800">{analytics.totalRevenue} ₺</p>
+                <div className="mt-2 text-xs text-green-600 flex items-center gap-1">
+                  <TrendingUp size={12} /> <span>Siparişlerden hesaplandı</span>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-stone-500 font-medium text-sm">Toplam Sipariş</h3>
+                  <div className="p-2 bg-blue-100 rounded-lg text-blue-600"><Package size={20} /></div>
+                </div>
+                <p className="text-3xl font-bold text-stone-800">{analytics.totalOrders}</p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-stone-500 font-medium text-sm">Müşteri Sayısı</h3>
+                  <div className="p-2 bg-purple-100 rounded-lg text-purple-600"><Users size={20} /></div>
+                </div>
+                <p className="text-3xl font-bold text-stone-800">{analytics.uniqueCustomers}</p>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-stone-500 font-medium text-sm">Kritik Stok</h3>
+                  <div className="p-2 bg-red-100 rounded-lg text-red-600"><AlertTriangle size={20} /></div>
+                </div>
+                <p className="text-3xl font-bold text-stone-800">{analytics.lowStockProducts}</p>
+                <div className="mt-2 text-xs text-red-600">
+                  10 adetten az kalan ürünler
+                </div>
+              </div>
+            </div>
+
+            {/* Stok Uyarıları Tablosu */}
+            <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+              <div className="p-6 border-b border-stone-200 flex items-center gap-2">
+                <AlertTriangle className="text-red-500" />
+                <h3 className="font-bold text-lg text-stone-800">Stok Uyarıları</h3>
+              </div>
+              <table className="w-full text-left">
+                <thead className="bg-stone-50 text-stone-500 font-medium">
+                  <tr>
+                    <th className="p-4">Ürün Adı</th>
+                    <th className="p-4">Kategori</th>
+                    <th className="p-4">Mevcut Stok</th>
+                    <th className="p-4 text-right">Durum</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                  {products.filter(p => (p.stock || 0) < 10).map(p => (
+                    <tr key={p.id}>
+                      <td className="p-4 font-medium">{p.title}</td>
+                      <td className="p-4 text-stone-500">{p.category}</td>
+                      <td className="p-4 font-bold text-red-600">{p.stock || 0} adet</td>
+                      <td className="p-4 text-right">
+                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold">
+                          <AlertTriangle size={12} /> Kritik Seviye
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                  {products.filter(p => (p.stock || 0) < 10).length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="p-8 text-center text-stone-400">
+                        <div className="flex flex-col items-center gap-2">
+                          <CheckSquare size={32} className="text-green-500" />
+                          <p>Harika! Kritik stok seviyesinde ürün bulunmuyor.</p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {/* --- SİPARİŞLER LİSTESİ (GÜNCELLENDİ) --- */}
         {activeTab === "orders" && (
           <>
-            <h2 className="text-2xl font-bold text-stone-700 mb-6">Gelen Siparişler</h2>
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+              <h2 className="text-2xl font-bold text-stone-700">Gelen Siparişler</h2>
+              <div className="flex items-center gap-2 bg-white p-1 rounded-lg border border-stone-200">
+                <Filter size={16} className="text-stone-400 ml-2" />
+                <select 
+                  className="p-2 text-sm outline-none bg-transparent text-stone-600 font-medium"
+                  value={orderStatusFilter}
+                  onChange={(e) => setOrderStatusFilter(e.target.value)}
+                >
+                  <option value="all">Tüm Siparişler</option>
+                  <option value="Hazırlanıyor">Hazırlanıyor</option>
+                  <option value="Kargolandı">Kargolandı</option>
+                  <option value="Teslim Edildi">Teslim Edildi</option>
+                  <option value="İptal">İptal Edildi</option>
+                </select>
+              </div>
+            </div>
             <div className="space-y-4">
-              {orders.map(order => (
+              {orders.filter(o => orderStatusFilter === 'all' || o.status === orderStatusFilter).map(order => (
                 <div key={order.id} className="bg-white border border-stone-200 rounded-2xl overflow-hidden hover:shadow-md transition">
                   
                   {/* Sipariş Başlığı (Özet) */}
@@ -1125,6 +1438,28 @@ export default function AdminPage() {
         )}
 
       </div>
+
+      {/* TOPLU STOK GÜNCELLEME MODALI */}
+      {isBulkStockModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-in zoom-in-95">
+            <h3 className="text-lg font-bold text-stone-800 mb-4">Toplu Stok Güncelleme</h3>
+            <p className="text-stone-600 mb-4">Seçilen {selectedProducts.length} ürünün stoğunu güncelle:</p>
+            <input 
+              type="number" 
+              min="0" 
+              className="w-full p-3 border border-stone-200 rounded-xl mb-4" 
+              placeholder="Yeni Stok Miktarı" 
+              value={bulkStockValue} 
+              onChange={(e) => setBulkStockValue(e.target.value)} 
+            />
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setIsBulkStockModalOpen(false)} className="px-4 py-2 text-stone-500 hover:bg-stone-100 rounded-lg font-medium">İptal</button>
+              <button onClick={handleBulkStockUpdate} className="px-4 py-2 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700">Güncelle</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* BLOG FORM MODALI */}
       {isBlogFormOpen && (

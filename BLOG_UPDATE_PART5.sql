@@ -43,3 +43,4 @@ WHERE slug = 'bahce-planlama-fide-duzeni-ve-rotasyon-sistemi';
 
 
 
+

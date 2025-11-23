@@ -43,3 +43,4 @@ WHERE slug = 'patlican-fidesi-bakimi-ve-yetistirme-ipuclari';
 
 
 
+

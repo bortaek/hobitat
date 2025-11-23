@@ -43,3 +43,4 @@ WHERE slug = 'sogan-ve-sarimsak-yetistirme-baslangic-rehberi';
 
 
 
+

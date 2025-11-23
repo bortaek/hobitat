@@ -43,3 +43,4 @@ WHERE slug = 'tarlada-fide-yetistiriciligi-profesyonel-rehber';
 
 
 
+
