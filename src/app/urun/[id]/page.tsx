@@ -9,6 +9,8 @@ import { supabase } from '@/lib/supabaseClient';
 import { Metadata } from 'next';
 import ReviewSection from '@/components/products/ReviewSection'; // <--- YORUM MODÜLÜ
 import CrossSell from '@/components/products/CrossSell'; // <--- ÇAPRAZ SATIŞ
+import ProductViewTracker from '@/components/products/ProductViewTracker'; // <--- İZLEYİCİ
+import RecentlyViewed from '@/components/products/RecentlyViewed'; // <--- SON GÖRÜNTÜLENENLER
 import dynamic from 'next/dynamic';
 
 // Dynamic import for client component
@@ -201,8 +203,21 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
         {/* --- ÇAPRAZ SATIŞ (Cross-Sell) --- */}
         <CrossSell currentProductId={product.id} currentCategory={product.category} />
 
+        {/* --- SON GÖRÜNTÜLENENLER --- */}
+        <RecentlyViewed currentProductId={product.id} />
+
         {/* --- YENİ: YORUM BÖLÜMÜ EKLENDİ --- */}
         <ReviewSection productId={product.id} />
+
+        {/* --- İZLEYİCİ --- */}
+        <ProductViewTracker product={{
+          id: product.id,
+          title: product.title,
+          category: product.category,
+          price: product.price,
+          image_url: product.image_url,
+          stock: product.stock
+        }} />
 
       </div>
 
