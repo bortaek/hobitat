@@ -1,13 +1,13 @@
 "use client";
 
 import React from 'react';
-import { X, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
+import { X, Trash2, ShoppingBag, ArrowRight, Plus, Minus } from 'lucide-react';
 import { useCart } from '@/components/context/CartContext';
 import Link from 'next/link'; // <--- Link bileşenini çağırdık
 import CartCrossSell from '@/components/products/CartCrossSell'; // <--- SEPET ÇAPRAZ SATIŞ
 
 export default function CartSidebar() {
-  const { isCartOpen, toggleCart, items, removeFromCart, totalPrice } = useCart();
+  const { isCartOpen, toggleCart, items, removeFromCart, updateQuantity, totalPrice } = useCart();
 
   // Sepet kapalıysa render etme
   if (!isCartOpen) return null;
@@ -59,8 +59,33 @@ export default function CartSidebar() {
                 
                 {/* Ürün Bilgisi */}
                 <div className="flex-1">
-                  <h4 className="font-bold text-stone-800 line-clamp-1">{item.title}</h4>
-                  <p className="text-sm text-stone-700 mb-2">Adet: {item.quantity}</p>
+                  <h4 className="font-bold text-stone-800 line-clamp-1 mb-2">{item.title}</h4>
+                  
+                  {/* Miktar Kontrolü */}
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-xs text-stone-600 font-medium">Adet:</span>
+                    <div className="flex items-center gap-2 bg-stone-100 rounded-lg">
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        className="p-1.5 hover:bg-stone-200 rounded transition active:scale-95"
+                        aria-label="Miktarı azalt"
+                      >
+                        <Minus size={14} className="text-stone-700" aria-hidden="true" />
+                      </button>
+                      <span className="px-3 py-1.5 text-stone-800 font-bold min-w-[2rem] text-center">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        disabled={item.stock !== undefined && item.quantity >= item.stock}
+                        className="p-1.5 hover:bg-stone-200 rounded transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        aria-label="Miktarı artır"
+                      >
+                        <Plus size={14} className="text-stone-700" aria-hidden="true" />
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-green-700">{item.price * item.quantity} ₺</span>
                     
