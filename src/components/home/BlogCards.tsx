@@ -125,13 +125,13 @@ export default function BlogCards({ blogs }: BlogCardsProps) {
               )}
 
               {/* Tarih ve Yazar */}
-              <div className="flex items-center justify-between text-xs text-stone-500 pt-4 border-t border-stone-200">
+              <div className="flex items-center justify-between text-xs text-stone-600 pt-4 border-t border-stone-200">
                 <div className="flex items-center gap-1">
                   <Calendar size={14} />
                   {formatDate(blog.published_at)}
                 </div>
                 {blog.author && (
-                  <span className="text-stone-400">{blog.author}</span>
+                  <span className="text-stone-600">{blog.author}</span>
                 )}
               </div>
             </div>

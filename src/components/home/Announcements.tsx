@@ -212,16 +212,16 @@ export default function Announcements() {
             <button
               onClick={goToPrevious}
               className="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-white/10 backdrop-blur-md hover:bg-white/20 transition-all duration-300 text-white border border-white/20 hover:scale-110 shadow-lg"
-              aria-label="Önceki"
+              aria-label="Önceki duyuru"
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={24} aria-hidden="true" />
             </button>
             <button
               onClick={goToNext}
               className="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-white/10 backdrop-blur-md hover:bg-white/20 transition-all duration-300 text-white border border-white/20 hover:scale-110 shadow-lg"
-              aria-label="Sonraki"
+              aria-label="Sonraki duyuru"
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={24} aria-hidden="true" />
             </button>
 
             {/* Progress Bar */}
@@ -246,7 +246,8 @@ export default function Announcements() {
                       ? 'w-10 h-2'
                       : 'w-2 h-2 hover:w-6'
                   }`}
-                  aria-label={`Slide ${index + 1}`}
+                  aria-label={`Duyuru ${index + 1} - ${announcements[index].title}`}
+                  aria-current={index === currentIndex ? "true" : "false"}
                 >
                   <div className={`absolute inset-0 rounded-full transition-all duration-300 ${
                     index === currentIndex

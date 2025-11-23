@@ -68,11 +68,13 @@ export default function FavoriteButton({ productId }: { productId: number }) {
       className={`p-2 rounded-full transition shadow-sm hover:scale-110 ${
         isFavorite 
           ? "bg-red-50 text-red-500" 
-          : "bg-white/80 text-stone-400 hover:text-red-500 hover:bg-white"
+          : "bg-white/80 text-stone-600 hover:text-red-500 hover:bg-white"
       }`}
-      title={isFavorite ? "Favorilerden Çıkar" : "Favorilere Ekle"}
+      aria-label={isFavorite ? "Favorilerden çıkar" : "Favorilere ekle"}
+      aria-pressed={isFavorite}
     >
-      <Heart size={20} fill={isFavorite ? "currentColor" : "none"} />
+      <Heart size={20} fill={isFavorite ? "currentColor" : "none"} aria-hidden="true" />
+      <span className="sr-only">{isFavorite ? "Favorilerden çıkar" : "Favorilere ekle"}</span>
     </button>
   );
 }

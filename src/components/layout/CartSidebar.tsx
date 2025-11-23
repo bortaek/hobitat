@@ -28,8 +28,12 @@ export default function CartSidebar() {
             <ShoppingBag size={24} />
             <span>Sepetim ({items.length})</span>
           </div>
-          <button onClick={toggleCart} className="p-2 hover:bg-stone-200 rounded-full transition">
-            <X size={24} className="text-stone-500" />
+          <button 
+            onClick={toggleCart} 
+            className="p-2 hover:bg-stone-200 rounded-full transition"
+            aria-label="Sepeti kapat"
+          >
+            <X size={24} className="text-stone-500" aria-hidden="true" />
           </button>
         </div>
 
@@ -38,7 +42,7 @@ export default function CartSidebar() {
           {items.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center opacity-60">
               <ShoppingBag size={64} className="mb-4 text-stone-300" />
-              <p className="text-lg font-medium text-stone-500">Sepetin şu an boş.</p>
+              <p className="text-lg font-medium text-stone-700">Sepetin şu an boş.</p>
               <button onClick={toggleCart} className="mt-4 text-green-600 font-bold hover:underline">
                 Alışverişe Dön
               </button>
@@ -55,7 +59,7 @@ export default function CartSidebar() {
                 {/* Ürün Bilgisi */}
                 <div className="flex-1">
                   <h4 className="font-bold text-stone-800 line-clamp-1">{item.title}</h4>
-                  <p className="text-sm text-stone-500 mb-2">Adet: {item.quantity}</p>
+                  <p className="text-sm text-stone-700 mb-2">Adet: {item.quantity}</p>
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-green-700">{item.price * item.quantity} ₺</span>
                     
@@ -63,9 +67,9 @@ export default function CartSidebar() {
                     <button 
                       onClick={() => removeFromCart(item.id)}
                       className="text-red-400 hover:text-red-600 p-1 hover:bg-red-50 rounded transition"
-                      title="Sepetten Çıkar"
+                      aria-label={`${item.title} ürününü sepetten çıkar`}
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={18} aria-hidden="true" />
                     </button>
                   </div>
                 </div>
@@ -78,7 +82,7 @@ export default function CartSidebar() {
         {items.length > 0 && (
           <div className="p-6 border-t border-stone-100 bg-[#F9F8F6]">
             <div className="flex justify-between items-center mb-4 text-lg">
-              <span className="text-stone-600">Ara Toplam</span>
+              <span className="text-stone-700 font-medium">Ara Toplam</span>
               <span className="font-bold text-2xl text-stone-800">{totalPrice} ₺</span>
             </div>
             
@@ -92,7 +96,7 @@ export default function CartSidebar() {
               <ArrowRight size={20} />
             </Link>
             
-            <p className="text-center text-xs text-stone-400 mt-3">
+            <p className="text-center text-xs text-stone-600 mt-3">
               Kargo ve vergiler ödeme adımında hesaplanır.
             </p>
           </div>

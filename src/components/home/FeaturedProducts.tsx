@@ -78,16 +78,16 @@ export default function FeaturedProducts() {
         >
           <div>
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-green-900">Çok Satanlar</h2>
-            <p className="text-stone-500 mt-2">Bu ay balkonlarda en çok bunlar büyüyor.</p>
+            <p className="text-stone-600 mt-2">Bu ay balkonlarda en çok bunlar büyüyor.</p>
           </div>
           <Link href="/magaza" className="text-green-700 font-semibold hover:underline hidden md:block">Tümünü Gör →</Link>
         </motion.div>
 
         {/* Ürün Listesi */}
         {loading ? (
-          <div className="text-center py-10 text-stone-400">Yükleniyor...</div>
+          <div className="text-center py-10 text-stone-600">Yükleniyor...</div>
         ) : products.length === 0 ? (
-          <div className="text-center py-10 text-stone-400">Henüz ürün eklenmemiş veya yükleniyor...</div>
+          <div className="text-center py-10 text-stone-600">Henüz ürün eklenmemiş veya yükleniyor...</div>
         ) : (
           <motion.div
             variants={containerVariants}

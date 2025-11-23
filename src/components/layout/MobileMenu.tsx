@@ -32,8 +32,12 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             </div>
             <span className="text-xl font-serif font-bold text-green-900">Hobitat</span>
           </div>
-          <button onClick={onClose} className="p-2 bg-white rounded-full shadow-sm text-stone-500">
-            <X size={20} />
+          <button 
+            onClick={onClose} 
+            className="p-2 bg-white rounded-full shadow-sm text-stone-700 hover:text-stone-900"
+            aria-label="Menüyü kapat"
+          >
+            <X size={20} aria-hidden="true" />
           </button>
         </div>
 
@@ -90,8 +94,11 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               <div>0555 123 45 67</div>
             </div>
           </a>
-          <button className="w-full bg-stone-100 text-stone-600 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
-            <Instagram size={18} />
+          <button 
+            className="w-full bg-stone-100 text-stone-700 hover:text-stone-900 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition"
+            aria-label="Instagram'da bizi takip edin"
+          >
+            <Instagram size={18} aria-hidden="true" />
             Bizi Takip Edin
           </button>
         </div>

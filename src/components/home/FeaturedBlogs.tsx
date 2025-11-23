@@ -66,7 +66,7 @@ export default async function FeaturedBlogs() {
         <div className="flex justify-between items-end mb-12">
           <div>
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-green-900">Blog & Rehberler</h2>
-            <p className="text-stone-500 mt-2">Bahçecilik ipuçları ve bilgilendirici yazılar</p>
+            <p className="text-stone-600 mt-2">Bahçecilik ipuçları ve bilgilendirici yazılar</p>
           </div>
           <Link href="/blog" className="text-green-700 font-semibold hover:underline hidden md:flex items-center gap-2">
             Tümünü Gör

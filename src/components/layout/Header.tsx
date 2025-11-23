@@ -26,7 +26,7 @@ export default function Header() {
           </Link>
 
           {/* MENÜ LİNKLERİ (Masaüstü) */}
-          <nav className="hidden md:flex gap-8 text-stone-600 font-medium">
+          <nav className="hidden md:flex gap-8 text-stone-700 font-medium" aria-label="Ana navigasyon">
             <Link href="/magaza" className="hover:text-green-700 transition">Tüm Ürünler</Link>
             <Link href="/magaza?kategori=Meyve" className="hover:text-green-700 transition">Meyve Fideleri</Link>
             <Link href="/magaza?kategori=Sebze" className="hover:text-green-700 transition">Sebze Fideleri</Link>
@@ -38,20 +38,27 @@ export default function Header() {
           <div className="flex items-center gap-4">
             
             {/* YENİ EKLENEN: Profil İkonu */}
-            <Link href="/hesabim" className="p-2 hover:bg-stone-200 rounded-full transition hidden md:block" title="Hesabım">
-              <User size={24} strokeWidth={1.5} />
+            <Link 
+              href="/hesabim" 
+              className="p-2 hover:bg-stone-200 rounded-full transition hidden md:block" 
+              aria-label="Hesabım sayfasına git"
+            >
+              <User size={24} strokeWidth={1.5} aria-hidden="true" />
+              <span className="sr-only">Hesabım</span>
             </Link>
 
             {/* Sepet Butonu */}
             <button 
               onClick={toggleCart} 
               className="p-2 hover:bg-stone-200 rounded-full transition relative"
+              aria-label={`Sepetim${totalItems > 0 ? ` (${totalItems} ürün)` : ' (boş)'}`}
+              aria-expanded={false}
             >
-              <ShoppingBag size={24} strokeWidth={1.5} />
+              <ShoppingBag size={24} strokeWidth={1.5} aria-hidden="true" />
               
               {/* Sepet Sayacı */}
               {totalItems > 0 && (
-                <span className="absolute top-0 right-0 bg-orange-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center animate-pulse">
+                <span className="absolute top-0 right-0 bg-orange-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center animate-pulse" aria-label={`${totalItems} ürün`}>
                   {totalItems}
                 </span>
               )}
@@ -61,8 +68,10 @@ export default function Header() {
             <button 
               className="md:hidden p-2 hover:bg-stone-200 rounded-full transition"
               onClick={() => setIsMobileMenuOpen(true)}
+              aria-label="Menüyü aç"
+              aria-expanded={isMobileMenuOpen}
             >
-              <Menu size={24} />
+              <Menu size={24} aria-hidden="true" />
             </button>
           </div>
         </div>
