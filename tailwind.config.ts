@@ -1,8 +1,9 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
+  darkMode: 'class', // Dark mode'u class bazlı yap
   content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",  // <--- İŞTE SİHİR BURADA: "src" ekledik.
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {

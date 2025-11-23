@@ -145,7 +145,7 @@ export default function FAQ({ showAll = false }: FAQProps) {
   }, [showAll, selectedCategory]);
 
   return (
-    <section className="py-20 bg-gradient-to-b from-white to-green-50">
+    <section className="py-20 bg-gradient-to-b from-white to-green-50 dark:from-stone-950 dark:to-stone-900 transition-colors duration-300">
       <div className="container mx-auto px-6 max-w-4xl">
         
         {/* Başlık */}
@@ -156,10 +156,10 @@ export default function FAQ({ showAll = false }: FAQProps) {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <h2 className="text-4xl md:text-5xl font-serif font-bold text-green-900 mb-4">
+          <h2 className="text-4xl md:text-5xl font-serif font-bold text-green-900 dark:text-green-400 mb-4">
             Sıkça Sorulan Sorular
           </h2>
-          <p className="text-lg text-stone-600 max-w-2xl mx-auto">
+          <p className="text-lg text-stone-600 dark:text-stone-400 max-w-2xl mx-auto">
             Merak ettiğiniz soruların cevaplarını burada bulabilirsiniz
           </p>
         </motion.div>
@@ -179,7 +179,7 @@ export default function FAQ({ showAll = false }: FAQProps) {
               className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
                 selectedCategory === category
                   ? 'bg-green-600 text-white shadow-lg'
-                  : 'bg-white text-stone-600 hover:bg-green-50 border border-stone-200'
+                  : 'bg-white dark:bg-stone-800 text-stone-600 dark:text-stone-300 hover:bg-green-50 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700'
               }`}
             >
               {category}
@@ -196,19 +196,19 @@ export default function FAQ({ showAll = false }: FAQProps) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.05 }}
-              className="bg-white rounded-2xl border border-stone-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+              className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 overflow-hidden shadow-sm hover:shadow-md transition-all"
             >
               <button
                 onClick={() => toggleItem(faq.id)}
-                className="w-full p-6 text-left flex items-center justify-between gap-4 hover:bg-green-50/50 transition-colors"
+                className="w-full p-6 text-left flex items-center justify-between gap-4 hover:bg-green-50/50 dark:hover:bg-stone-800/50 transition-colors"
                 aria-expanded={openItems.includes(faq.id)}
               >
-                <h3 className="text-lg font-bold text-stone-800 flex-1">
+                <h3 className="text-lg font-bold text-stone-800 dark:text-stone-100 flex-1">
                   {faq.question}
                 </h3>
                 <div className="flex-shrink-0">
                   {openItems.includes(faq.id) ? (
-                    <ChevronUp size={24} className="text-green-600" />
+                    <ChevronUp size={24} className="text-green-600 dark:text-green-400" />
                   ) : (
                     <ChevronDown size={24} className="text-stone-400" />
                   )}
@@ -224,11 +224,11 @@ export default function FAQ({ showAll = false }: FAQProps) {
                     transition={{ duration: 0.3 }}
                     className="overflow-hidden"
                   >
-                    <div className="px-6 pb-6 pt-2 border-t border-stone-100">
-                      <p className="text-stone-600 leading-relaxed">
+                    <div className="px-6 pb-6 pt-2 border-t border-stone-100 dark:border-stone-800">
+                      <p className="text-stone-600 dark:text-stone-300 leading-relaxed">
                         {faq.answer}
                       </p>
-                      <span className="inline-block mt-3 text-xs text-stone-400 bg-stone-50 px-3 py-1 rounded-full">
+                      <span className="inline-block mt-3 text-xs text-stone-400 bg-stone-50 dark:bg-stone-800 px-3 py-1 rounded-full">
                         {faq.category}
                       </span>
                     </div>
@@ -264,12 +264,12 @@ export default function FAQ({ showAll = false }: FAQProps) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.4 }}
-          className="mt-12 text-center bg-green-50 rounded-2xl p-8 border border-green-100"
+          className="mt-12 text-center bg-green-50 dark:bg-stone-900 rounded-2xl p-8 border border-green-100 dark:border-stone-800"
         >
-          <h3 className="text-xl font-bold text-green-900 mb-2">
+          <h3 className="text-xl font-bold text-green-900 dark:text-green-400 mb-2">
             Sorunuz mu var?
           </h3>
-          <p className="text-stone-600 mb-4">
+          <p className="text-stone-600 dark:text-stone-400 mb-4">
             Aradığınız cevabı bulamadıysanız, bizimle iletişime geçin!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -281,7 +281,7 @@ export default function FAQ({ showAll = false }: FAQProps) {
             </a>
             <a
               href="mailto:destek@hobitat.com"
-              className="inline-flex items-center justify-center gap-2 bg-white text-green-700 px-6 py-3 rounded-xl font-bold hover:bg-green-50 transition border-2 border-green-600"
+              className="inline-flex items-center justify-center gap-2 bg-white dark:bg-stone-800 text-green-700 dark:text-green-400 px-6 py-3 rounded-xl font-bold hover:bg-green-50 dark:hover:bg-stone-700 transition border-2 border-green-600 dark:border-green-500"
             >
               ✉️ destek@hobitat.com
             </a>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/context/CartContext";
+import { ThemeProvider } from "@/components/context/ThemeContext";
 import CartSidebar from "@/components/layout/CartSidebar";
 import SplashScreen from "@/components/ui/SplashScreen";
 
@@ -48,12 +49,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr">
-      <body className={inter.className}>
-        <SplashScreen />
-        <CartProvider>
-          <CartSidebar />
-          {children}
-        </CartProvider>
+      <body className={`${inter.className} bg-stone-50 text-stone-900 dark:bg-stone-950 dark:text-stone-100 transition-colors duration-300`}>
+        <ThemeProvider>
+          <SplashScreen />
+          <CartProvider>
+            <CartSidebar />
+            {children}
+          </CartProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
