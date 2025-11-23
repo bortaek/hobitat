@@ -99,7 +99,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               className="object-cover group-hover:scale-105 transition duration-700"
               sizes="(max-width: 768px) 100vw, 50vw"
               key={product.image_url}
-              unoptimized
+              priority
             />
             <span className="absolute top-4 left-4 bg-green-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
               {product.category}
