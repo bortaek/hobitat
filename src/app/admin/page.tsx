@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { Trash2, Plus, Edit, LogOut, Package, X, Save, Loader2, UploadCloud, ShoppingBag, ChevronDown, ChevronUp, MapPin, Mail, User } from 'lucide-react';
+import { Trash2, Plus, Edit, LogOut, Package, X, Save, Loader2, UploadCloud, ShoppingBag, ChevronDown, ChevronUp, MapPin, Mail, User, Settings } from 'lucide-react';
 import Image from 'next/image';
 
 // TİPLER
@@ -74,6 +74,85 @@ export default function AdminPage() {
     setActiveTab(tab);
     if (tab === "products") fetchProducts();
     if (tab === "orders") fetchOrders();
+    if (tab === "settings") fetchSiteSettings();
+  };
+
+  // Site Ayarları State'leri
+  const [siteSettings, setSiteSettings] = useState<any>({
+    hero_section: null,
+    value_props: null,
+    footer: null,
+    contact_page: null,
+    about_page: null
+  });
+  const [activeSetting, setActiveSetting] = useState<string>("hero_section");
+  const [settingsLoading, setSettingsLoading] = useState(false);
+  const [showSetupWarning, setShowSetupWarning] = useState(false);
+
+  // Site Ayarlarını Çek
+  const fetchSiteSettings = async () => {
+    setSettingsLoading(true);
+    try {
+      const { data, error } = await supabase.from('site_settings').select('*');
+      if (error) {
+        console.error('Site ayarları çekilirken hata:', error);
+        // Tablo yoksa uyarı göster
+        if (error.code === 'PGRST116' || error.message.includes('does not exist') || error.message.includes('relation') && error.message.includes('does not exist')) {
+          setShowSetupWarning(true);
+        } else {
+          alert('Site ayarları çekilirken hata: ' + error.message);
+        }
+      } else if (data && data.length > 0) {
+        // Tablo var ve veri var - uyarıyı gizle
+        setShowSetupWarning(false);
+        const settingsObj: any = {};
+        data.forEach((item: any) => {
+          settingsObj[item.key] = item.value;
+        });
+        setSiteSettings(settingsObj);
+      } else {
+        // Tablo var ama boş - uyarıyı göster
+        setShowSetupWarning(true);
+        console.log('Site ayarları tablosu boş. Varsayılan veriler eklenmeli.');
+      }
+    } catch (err) {
+      console.error('Site ayarları çekilirken beklenmeyen hata:', err);
+      setShowSetupWarning(true);
+    } finally {
+      setSettingsLoading(false);
+    }
+  };
+
+  // Site Ayarları Tablosunu Otomatik Oluştur
+  const createSiteSettingsTable = async () => {
+    try {
+      // Supabase RPC ile tablo oluşturma (eğer RPC fonksiyonu varsa)
+      // Alternatif: Kullanıcıya SQL'i çalıştırmasını söyle
+      alert('Tablo oluşturma için lütfen Supabase Dashboard > SQL Editor\'de SITE_SETTINGS_SCHEMA.sql dosyasındaki komutları çalıştırın.');
+    } catch (err: any) {
+      alert('Tablo oluşturulamadı: ' + err.message);
+    }
+  };
+
+  // Site Ayarını Kaydet
+  const saveSiteSetting = async (key: string, value: any) => {
+    setSettingsLoading(true);
+    try {
+      const { error } = await supabase
+        .from('site_settings')
+        .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
+      
+      if (error) {
+        alert('Kayıt hatası: ' + error.message);
+      } else {
+        setSiteSettings({ ...siteSettings, [key]: value });
+        alert('Ayarlar kaydedildi!');
+      }
+    } catch (err: any) {
+      alert('Hata: ' + err.message);
+    } finally {
+      setSettingsLoading(false);
+    }
   };
 
   const handleDeleteProduct = async (id: number) => {
@@ -156,6 +235,7 @@ export default function AdminPage() {
           <div className="flex bg-stone-100 p-1 rounded-lg">
             <button onClick={() => handleTabChange("products")} className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === "products" ? "bg-white shadow text-stone-800" : "text-stone-500"}`}>Ürünler</button>
             <button onClick={() => handleTabChange("orders")} className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === "orders" ? "bg-white shadow text-stone-800" : "text-stone-500"}`}>Siparişler</button>
+            <button onClick={() => handleTabChange("settings")} className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === "settings" ? "bg-white shadow text-stone-800" : "text-stone-500"}`}><Settings size={16} className="inline mr-1" />Site Ayarları</button>
           </div>
         </div>
         <button onClick={() => setIsAuthenticated(false)} className="text-stone-500 hover:text-red-600 text-sm font-medium"><LogOut size={18} /></button>
@@ -295,6 +375,414 @@ export default function AdminPage() {
               {orders.length === 0 && <p className="text-center text-stone-400 py-10">Henüz sipariş yok.</p>}
             </div>
           </>
+        )}
+
+        {/* --- SITE AYARLARI --- */}
+        {activeTab === "settings" && (
+          <div className="space-y-6">
+            {showSetupWarning && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
+                <div className="flex items-start justify-between mb-2">
+                  <p className="text-sm text-yellow-800 mb-2">
+                    <strong>⚠️ İlk Kurulum Gerekli:</strong> Site ayarları tablosu henüz oluşturulmamış veya boş. Devam etmek için:
+                  </p>
+                  <button 
+                    onClick={() => setShowSetupWarning(false)}
+                    className="text-yellow-600 hover:text-yellow-800"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+                <ol className="text-sm text-yellow-800 list-decimal list-inside space-y-1 mb-3">
+                  <li>Supabase Dashboard'a gidin (https://supabase.com/dashboard)</li>
+                  <li>SQL Editor sekmesine tıklayın</li>
+                  <li><code className="bg-yellow-100 px-2 py-1 rounded">SITE_SETTINGS_SCHEMA.sql</code> dosyasının içeriğini kopyalayın</li>
+                  <li>SQL Editor'e yapıştırıp "Run" butonuna tıklayın</li>
+                  <li>Bu sayfayı yenileyin</li>
+                </ol>
+                <button 
+                  onClick={fetchSiteSettings}
+                  className="mt-2 bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-yellow-700 transition"
+                >
+                  Tekrar Kontrol Et
+                </button>
+              </div>
+            )}
+
+            <div className="grid md:grid-cols-4 gap-6">
+              {/* Sol: Ayarlar Menüsü */}
+              <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-4">
+                <h3 className="font-bold text-stone-800 mb-4">Düzenlenecek Bölümler</h3>
+                <div className="space-y-2">
+                  {[
+                    { key: 'hero_section', label: 'Ana Sayfa (Hero)' },
+                    { key: 'value_props', label: 'Değer Önerileri' },
+                    { key: 'footer', label: 'Footer' },
+                    { key: 'contact_page', label: 'İletişim Sayfası' },
+                    { key: 'about_page', label: 'Hakkımızda' }
+                  ].map((item) => (
+                    <button
+                      key={item.key}
+                      onClick={() => setActiveSetting(item.key)}
+                      className={`w-full text-left px-4 py-2 rounded-lg text-sm transition ${
+                        activeSetting === item.key
+                          ? 'bg-green-50 text-green-700 font-medium'
+                          : 'text-stone-600 hover:bg-stone-50'
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Sağ: Düzenleme Alanı */}
+              <div className="md:col-span-3 bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+                {settingsLoading ? (
+                  <div className="text-center py-12">
+                    <Loader2 className="animate-spin mx-auto mb-4 text-stone-400" size={32} />
+                    <p className="text-stone-500">Yükleniyor...</p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Hero Section Düzenleme */}
+                    {activeSetting === 'hero_section' && (
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-bold text-stone-800 mb-4">Ana Sayfa Hero Bölümü</h3>
+                        <form onSubmit={(e) => { e.preventDefault(); const formData = new FormData(e.currentTarget); saveSiteSetting('hero_section', {
+                          background_image: formData.get('background_image'),
+                          badge_text: formData.get('badge_text'),
+                          title: formData.get('title'),
+                          title_highlight: formData.get('title_highlight'),
+                          button_text: formData.get('button_text'),
+                          button_link: formData.get('button_link')
+                        }); }}>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-stone-600 mb-2">Arkaplan Resmi URL</label>
+                              <input type="text" name="background_image" defaultValue={siteSettings.hero_section?.background_image || ''} className="w-full p-3 border border-stone-200 rounded-xl" placeholder="https://..." />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-stone-600 mb-2">Rozet Metni</label>
+                              <input type="text" name="badge_text" defaultValue={siteSettings.hero_section?.badge_text || ''} className="w-full p-3 border border-stone-200 rounded-xl" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-stone-600 mb-2">Ana Başlık</label>
+                                <input type="text" name="title" defaultValue={siteSettings.hero_section?.title || ''} className="w-full p-3 border border-stone-200 rounded-xl" />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-stone-600 mb-2">Vurgulu Kısım</label>
+                                <input type="text" name="title_highlight" defaultValue={siteSettings.hero_section?.title_highlight || ''} className="w-full p-3 border border-stone-200 rounded-xl" />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-stone-600 mb-2">Buton Metni</label>
+                                <input type="text" name="button_text" defaultValue={siteSettings.hero_section?.button_text || ''} className="w-full p-3 border border-stone-200 rounded-xl" />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-stone-600 mb-2">Buton Linki</label>
+                                <input type="text" name="button_link" defaultValue={siteSettings.hero_section?.button_link || ''} className="w-full p-3 border border-stone-200 rounded-xl" />
+                              </div>
+                            </div>
+                            <button type="submit" className="w-full bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                              <Save size={20} /> Kaydet
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    )}
+
+                    {/* Value Props Düzenleme */}
+                    {activeSetting === 'value_props' && (
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-bold text-stone-800 mb-4">Değer Önerileri (3 Kutu)</h3>
+                        <form onSubmit={(e) => { 
+                          e.preventDefault(); 
+                          const formData = new FormData(e.currentTarget);
+                          saveSiteSetting('value_props', {
+                            items: [
+                              {
+                                icon: formData.get('icon1'),
+                                icon_color: formData.get('icon_color1'),
+                                title: formData.get('title1'),
+                                description: formData.get('description1')
+                              },
+                              {
+                                icon: formData.get('icon2'),
+                                icon_color: formData.get('icon_color2'),
+                                title: formData.get('title2'),
+                                description: formData.get('description2')
+                              },
+                              {
+                                icon: formData.get('icon3'),
+                                icon_color: formData.get('icon_color3'),
+                                title: formData.get('title3'),
+                                description: formData.get('description3')
+                              }
+                            ]
+                          });
+                        }}>
+                          {[1, 2, 3].map((num) => (
+                            <div key={num} className="border border-stone-200 rounded-xl p-4 mb-4">
+                              <h4 className="font-bold text-stone-700 mb-3">Kutu {num}</h4>
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <label className="block text-xs text-stone-600 mb-1">İkon (ShieldCheck, Truck, Sun)</label>
+                                    <input type="text" name={`icon${num}`} defaultValue={siteSettings.value_props?.items?.[num-1]?.icon || ''} className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs text-stone-600 mb-1">İkon Rengi</label>
+                                    <select name={`icon_color${num}`} defaultValue={siteSettings.value_props?.items?.[num-1]?.icon_color || 'green'} className="w-full p-2 border border-stone-200 rounded-lg text-sm">
+                                      <option value="orange">Turuncu</option>
+                                      <option value="green">Yeşil</option>
+                                      <option value="blue">Mavi</option>
+                                      <option value="red">Kırmızı</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="block text-xs text-stone-600 mb-1">Başlık</label>
+                                  <input type="text" name={`title${num}`} defaultValue={siteSettings.value_props?.items?.[num-1]?.title || ''} className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                </div>
+                                <div>
+                                  <label className="block text-xs text-stone-600 mb-1">Açıklama</label>
+                                  <textarea name={`description${num}`} defaultValue={siteSettings.value_props?.items?.[num-1]?.description || ''} rows={2} className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          <button type="submit" className="w-full bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                            <Save size={20} /> Kaydet
+                          </button>
+                        </form>
+                      </div>
+                    )}
+
+                    {/* Footer Düzenleme */}
+                    {activeSetting === 'footer' && (
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-bold text-stone-800 mb-4">Footer Ayarları</h3>
+                        <form onSubmit={(e) => { 
+                          e.preventDefault(); 
+                          const formData = new FormData(e.currentTarget);
+                          saveSiteSetting('footer', {
+                            brand_description: formData.get('brand_description'),
+                            social_media: {
+                              instagram: formData.get('instagram'),
+                              facebook: formData.get('facebook'),
+                              twitter: formData.get('twitter')
+                            },
+                            contact: {
+                              address: formData.get('address'),
+                              phone: formData.get('phone'),
+                              email: formData.get('email')
+                            },
+                            copyright: formData.get('copyright')
+                          });
+                        }}>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-stone-600 mb-2">Marka Açıklaması</label>
+                              <textarea name="brand_description" defaultValue={siteSettings.footer?.brand_description || ''} rows={3} className="w-full p-3 border border-stone-200 rounded-xl" />
+                            </div>
+                            <div className="border-t border-stone-200 pt-4">
+                              <h4 className="font-bold text-stone-700 mb-3">Sosyal Medya</h4>
+                              <div className="grid grid-cols-3 gap-3">
+                                <div>
+                                  <label className="block text-xs text-stone-600 mb-1">Instagram URL</label>
+                                  <input type="text" name="instagram" defaultValue={siteSettings.footer?.social_media?.instagram || ''} className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                </div>
+                                <div>
+                                  <label className="block text-xs text-stone-600 mb-1">Facebook URL</label>
+                                  <input type="text" name="facebook" defaultValue={siteSettings.footer?.social_media?.facebook || ''} className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                </div>
+                                <div>
+                                  <label className="block text-xs text-stone-600 mb-1">Twitter URL</label>
+                                  <input type="text" name="twitter" defaultValue={siteSettings.footer?.social_media?.twitter || ''} className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="border-t border-stone-200 pt-4">
+                              <h4 className="font-bold text-stone-700 mb-3">İletişim Bilgileri</h4>
+                              <div className="space-y-3">
+                                <div>
+                                  <label className="block text-xs text-stone-600 mb-1">Adres</label>
+                                  <textarea name="address" defaultValue={siteSettings.footer?.contact?.address || ''} rows={2} className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div>
+                                    <label className="block text-xs text-stone-600 mb-1">Telefon</label>
+                                    <input type="text" name="phone" defaultValue={siteSettings.footer?.contact?.phone || ''} className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                  </div>
+                                  <div>
+                                    <label className="block text-xs text-stone-600 mb-1">E-posta</label>
+                                    <input type="email" name="email" defaultValue={siteSettings.footer?.contact?.email || ''} className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-stone-600 mb-2">Telif Hakkı Metni</label>
+                              <input type="text" name="copyright" defaultValue={siteSettings.footer?.copyright || ''} className="w-full p-3 border border-stone-200 rounded-xl" />
+                            </div>
+                            <button type="submit" className="w-full bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                              <Save size={20} /> Kaydet
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    )}
+
+                    {/* Contact Page Düzenleme */}
+                    {activeSetting === 'contact_page' && (
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-bold text-stone-800 mb-4">İletişim Sayfası</h3>
+                        <form onSubmit={(e) => { 
+                          e.preventDefault(); 
+                          const formData = new FormData(e.currentTarget);
+                          saveSiteSetting('contact_page', {
+                            title: formData.get('title'),
+                            address: {
+                              title: formData.get('address_title'),
+                              value: formData.get('address_value')
+                            },
+                            phone: {
+                              title: formData.get('phone_title'),
+                              value: formData.get('phone_value'),
+                              subtitle: formData.get('phone_subtitle')
+                            },
+                            email: {
+                              title: formData.get('email_title'),
+                              value: formData.get('email_value'),
+                              subtitle: formData.get('email_subtitle')
+                            },
+                            map_url: formData.get('map_url')
+                          });
+                        }}>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-stone-600 mb-2">Sayfa Başlığı</label>
+                              <input type="text" name="title" defaultValue={siteSettings.contact_page?.title || ''} className="w-full p-3 border border-stone-200 rounded-xl" />
+                            </div>
+                            <div className="border-t border-stone-200 pt-4">
+                              <h4 className="font-bold text-stone-700 mb-3">Adres Bilgisi</h4>
+                              <div className="space-y-3">
+                                <input type="text" name="address_title" defaultValue={siteSettings.contact_page?.address?.title || ''} placeholder="Başlık" className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                <textarea name="address_value" defaultValue={siteSettings.contact_page?.address?.value || ''} rows={2} placeholder="Adres" className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                              </div>
+                            </div>
+                            <div className="border-t border-stone-200 pt-4">
+                              <h4 className="font-bold text-stone-700 mb-3">Telefon Bilgisi</h4>
+                              <div className="space-y-3">
+                                <input type="text" name="phone_title" defaultValue={siteSettings.contact_page?.phone?.title || ''} placeholder="Başlık" className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                <input type="text" name="phone_value" defaultValue={siteSettings.contact_page?.phone?.value || ''} placeholder="Telefon" className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                <input type="text" name="phone_subtitle" defaultValue={siteSettings.contact_page?.phone?.subtitle || ''} placeholder="Alt başlık" className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                              </div>
+                            </div>
+                            <div className="border-t border-stone-200 pt-4">
+                              <h4 className="font-bold text-stone-700 mb-3">E-posta Bilgisi</h4>
+                              <div className="space-y-3">
+                                <input type="text" name="email_title" defaultValue={siteSettings.contact_page?.email?.title || ''} placeholder="Başlık" className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                <input type="email" name="email_value" defaultValue={siteSettings.contact_page?.email?.value || ''} placeholder="E-posta" className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                <input type="text" name="email_subtitle" defaultValue={siteSettings.contact_page?.email?.subtitle || ''} placeholder="Alt başlık" className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-stone-600 mb-2">Harita Embed URL</label>
+                              <input type="text" name="map_url" defaultValue={siteSettings.contact_page?.map_url || ''} className="w-full p-3 border border-stone-200 rounded-xl" placeholder="https://www.google.com/maps/embed?pb=..." />
+                            </div>
+                            <button type="submit" className="w-full bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                              <Save size={20} /> Kaydet
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    )}
+
+                    {/* About Page Düzenleme */}
+                    {activeSetting === 'about_page' && (
+                      <div className="space-y-4">
+                        <h3 className="text-xl font-bold text-stone-800 mb-4">Hakkımızda Sayfası</h3>
+                        <form onSubmit={(e) => { 
+                          e.preventDefault(); 
+                          const formData = new FormData(e.currentTarget);
+                          saveSiteSetting('about_page', {
+                            title: formData.get('title'),
+                            image: formData.get('image'),
+                            content: [
+                              {
+                                paragraph: formData.get('content1'),
+                                bold_text: formData.get('bold_text1') || ''
+                              },
+                              {
+                                paragraph: formData.get('content2')
+                              }
+                            ],
+                            mission: {
+                              title: formData.get('mission_title'),
+                              text: formData.get('mission_text')
+                            },
+                            features: [
+                              { icon: formData.get('feature1_icon'), title: formData.get('feature1_title') },
+                              { icon: formData.get('feature2_icon'), title: formData.get('feature2_title') },
+                              { icon: formData.get('feature3_icon'), title: formData.get('feature3_title') }
+                            ]
+                          });
+                        }}>
+                          <div className="space-y-4">
+                            <div>
+                              <label className="block text-sm font-medium text-stone-600 mb-2">Sayfa Başlığı</label>
+                              <input type="text" name="title" defaultValue={siteSettings.about_page?.title || ''} className="w-full p-3 border border-stone-200 rounded-xl" />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-stone-600 mb-2">Üst Görsel URL</label>
+                              <input type="text" name="image" defaultValue={siteSettings.about_page?.image || ''} className="w-full p-3 border border-stone-200 rounded-xl" />
+                            </div>
+                            <div className="border-t border-stone-200 pt-4">
+                              <h4 className="font-bold text-stone-700 mb-3">İçerik</h4>
+                              <div className="space-y-3">
+                                <div>
+                                  <label className="block text-xs text-stone-600 mb-1">1. Paragraf</label>
+                                  <textarea name="content1" defaultValue={siteSettings.about_page?.content?.[0]?.paragraph || ''} rows={2} className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                  <input type="text" name="bold_text1" defaultValue={siteSettings.about_page?.content?.[0]?.bold_text || ''} placeholder="Kalın yapılacak kelime" className="w-full p-2 border border-stone-200 rounded-lg text-sm mt-2" />
+                                </div>
+                                <div>
+                                  <label className="block text-xs text-stone-600 mb-1">2. Paragraf</label>
+                                  <textarea name="content2" defaultValue={siteSettings.about_page?.content?.[1]?.paragraph || ''} rows={2} className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="border-t border-stone-200 pt-4">
+                              <h4 className="font-bold text-stone-700 mb-3">Misyon</h4>
+                              <div className="space-y-3">
+                                <input type="text" name="mission_title" defaultValue={siteSettings.about_page?.mission?.title || ''} placeholder="Başlık" className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                                <textarea name="mission_text" defaultValue={siteSettings.about_page?.mission?.text || ''} rows={3} placeholder="Misyon metni" className="w-full p-2 border border-stone-200 rounded-lg text-sm" />
+                              </div>
+                            </div>
+                            <div className="border-t border-stone-200 pt-4">
+                              <h4 className="font-bold text-stone-700 mb-3">Özellikler (3 Kutu)</h4>
+                              {[1, 2, 3].map((num) => (
+                                <div key={num} className="grid grid-cols-2 gap-3 mb-3">
+                                  <input type="text" name={`feature${num}_icon`} defaultValue={siteSettings.about_page?.features?.[num-1]?.icon || ''} placeholder="İkon (emoji)" className="p-2 border border-stone-200 rounded-lg text-sm" />
+                                  <input type="text" name={`feature${num}_title`} defaultValue={siteSettings.about_page?.features?.[num-1]?.title || ''} placeholder="Başlık" className="p-2 border border-stone-200 rounded-lg text-sm" />
+                                </div>
+                              ))}
+                            </div>
+                            <button type="submit" className="w-full bg-green-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2">
+                              <Save size={20} /> Kaydet
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         )}
 
       </div>
