@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState } from 'react';
-import { supabase } from '@/lib/supabaseClient';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/navigation';
 import { Loader2, LogIn, UserPlus, Mail, Lock } from 'lucide-react';
 
 export default function LoginPage() {
+  const supabase = createClientComponentClient();
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true); // Giriş mi Kayıt mı?
   const [loading, setLoading] = useState(false);
@@ -19,15 +20,32 @@ export default function LoginPage() {
 
     if (isLogin) {
       // --- GİRİŞ YAP ---
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
+      
       if (error) {
         alert("Giriş hatası: " + error.message);
-      } else {
-        router.push('/hesabim'); // Başarılıysa profil sayfasına git
-        router.refresh(); // Header güncellensin diye
+        setLoading(false);
+        return;
+      }
+
+      // Başarılı giriş - session'ın kurulduğundan emin ol
+      if (data.session) {
+        // Cookie'lerin set edilmesi için bekle
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Session'ın gerçekten kurulduğunu doğrula
+        const { data: { session: verifySession } } = await supabase.auth.getSession();
+        
+        if (verifySession?.user) {
+          // Tam sayfa yenilemesi ile yönlendir - bu middleware'in çalışmasını garanti eder
+          window.location.href = '/hesabim';
+        } else {
+          alert("Giriş başarılı ama oturum kurulamadı. Lütfen sayfayı yenileyip tekrar deneyin.");
+          setLoading(false);
+        }
       }
     } else {
       // --- KAYIT OL ---
@@ -37,12 +55,13 @@ export default function LoginPage() {
       });
       if (error) {
         alert("Kayıt hatası: " + error.message);
+        setLoading(false);
       } else {
         alert("Kayıt başarılı! Şimdi giriş yapabilirsiniz.");
         setIsLogin(true); // Giriş ekranına dön
+        setLoading(false);
       }
     }
-    setLoading(false);
   };
 
   return (
