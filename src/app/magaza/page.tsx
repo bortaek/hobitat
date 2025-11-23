@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import ProductCard from '@/components/products/ProductCard';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import { Search, Filter, SlidersHorizontal } from 'lucide-react';
+import { Filter } from 'lucide-react';
+import AdvancedFilters, { FilterState } from '@/components/shop/AdvancedFilters';
 
 interface Product {
   id: number;
@@ -22,8 +23,14 @@ export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Filtreleme State'leri
-  const [searchTerm, setSearchTerm] = useState("");
+  // Gelişmiş Filtreleme State'leri
+  const [filters, setFilters] = useState<FilterState>({
+    priceRange: [0, 1000],
+    inStock: null,
+    category: '',
+    searchTerm: '',
+  });
+  const [sortBy, setSortBy] = useState<string>('default');
   const [selectedCategory, setSelectedCategory] = useState("Tümü");
 
   // Verileri Çek
@@ -36,16 +43,63 @@ export default function ShopPage() {
     fetchProducts();
   }, []);
 
-  // --- FİLTRELEME MANTIĞI ---
-  const filteredProducts = products.filter(product => {
-    // 1. Arama kelimesi eşleşiyor mu? (Küçük harfe çevirip bakıyoruz)
-    const matchesSearch = product.title.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // 2. Kategori eşleşiyor mu?
-    const matchesCategory = selectedCategory === "Tümü" || product.category === selectedCategory;
+  // Kategori butonları için eski filtreleme (geriye dönük uyumluluk)
+  useEffect(() => {
+    if (selectedCategory !== "Tümü") {
+      setFilters(prev => ({ ...prev, category: selectedCategory }));
+    }
+  }, [selectedCategory]);
 
-    return matchesSearch && matchesCategory;
-  });
+  // --- GELİŞMİŞ FİLTRELEME MANTIĞI ---
+  const filteredProducts = useMemo(() => {
+    let filtered = products.filter(product => {
+      // 1. Arama kelimesi
+      const matchesSearch = filters.searchTerm === '' || 
+        product.title.toLowerCase().includes(filters.searchTerm.toLowerCase());
+      
+      // 2. Kategori (hem eski kategori butonları hem yeni filtre)
+      const categoryFilter = filters.category || (selectedCategory !== "Tümü" ? selectedCategory : '');
+      const matchesCategory = categoryFilter === '' || product.category === categoryFilter;
+      
+      // 3. Fiyat aralığı
+      const matchesPrice = product.price >= filters.priceRange[0] && 
+                          product.price <= filters.priceRange[1];
+      
+      // 4. Stok durumu
+      const matchesStock = filters.inStock === null || 
+        (filters.inStock === true ? (product.stock !== undefined && product.stock > 0) : 
+         (product.stock === undefined || product.stock === 0));
+
+      return matchesSearch && matchesCategory && matchesPrice && matchesStock;
+    });
+
+    // --- SIRALAMA ---
+    switch (sortBy) {
+      case 'price-asc':
+        filtered.sort((a, b) => a.price - b.price);
+        break;
+      case 'price-desc':
+        filtered.sort((a, b) => b.price - a.price);
+        break;
+      case 'newest':
+        filtered.sort((a, b) => b.id - a.id); // ID'ye göre (yeni eklenenler daha yüksek ID)
+        break;
+      case 'oldest':
+        filtered.sort((a, b) => a.id - b.id);
+        break;
+      case 'stock-high':
+        filtered.sort((a, b) => (b.stock || 0) - (a.stock || 0));
+        break;
+      case 'stock-low':
+        filtered.sort((a, b) => (a.stock || 0) - (b.stock || 0));
+        break;
+      default:
+        // Varsayılan sıralama (değişiklik yok)
+        break;
+    }
+
+    return filtered;
+  }, [products, filters, selectedCategory, sortBy]);
 
   return (
     <main className="min-h-screen bg-[#F9F8F6] font-sans flex flex-col">
@@ -61,38 +115,41 @@ export default function ShopPage() {
 
       <div className="container mx-auto px-6 py-10 flex-grow">
         
-        {/* FİLTRE VE ARAMA ALANI */}
-        <div className="flex flex-col md:flex-row gap-6 mb-10 items-center justify-between">
-          
-          {/* Kategori Butonları */}
-          <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-             {CATEGORIES.map(cat => (
-               <button
-                 key={cat}
-                 onClick={() => setSelectedCategory(cat)}
-                 className={`px-4 py-2 rounded-full text-sm font-bold transition ${
-                   selectedCategory === cat 
-                     ? "bg-green-600 text-white shadow-lg shadow-green-200" 
-                     : "bg-white text-stone-600 hover:bg-stone-100 border border-stone-200"
-                 }`}
-               >
-                 {cat}
-               </button>
-             ))}
-          </div>
-
-          {/* Arama Çubuğu */}
-          <div className="relative w-full md:w-72">
-            <input 
-              type="text" 
-              placeholder="Ürün ara..." 
-              className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white shadow-sm"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Search className="absolute left-3 top-3.5 text-stone-400" size={20} />
-          </div>
+        {/* Kategori Butonları (Hızlı Erişim) */}
+        <div className="flex flex-wrap gap-2 justify-center mb-6">
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat}
+              onClick={() => {
+                setSelectedCategory(cat);
+                if (cat === "Tümü") {
+                  setFilters(prev => ({ ...prev, category: '' }));
+                }
+              }}
+              className={`px-4 py-2 rounded-full text-sm font-bold transition ${
+                selectedCategory === cat 
+                  ? "bg-green-600 text-white shadow-lg shadow-green-200" 
+                  : "bg-white text-stone-600 hover:bg-stone-100 border border-stone-200"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
+
+        {/* Gelişmiş Filtreler ve Sıralama */}
+        <AdvancedFilters 
+          onFilterChange={setFilters}
+          onSortChange={setSortBy}
+          currentSort={sortBy}
+        />
+
+        {/* Sonuç Sayısı */}
+        {!loading && (
+          <div className="mb-6 text-stone-600 text-sm">
+            <strong>{filteredProducts.length}</strong> ürün bulundu
+          </div>
+        )}
 
         {/* ÜRÜN LİSTESİ */}
         {loading ? (
@@ -105,7 +162,16 @@ export default function ShopPage() {
              <h3 className="text-xl font-bold text-stone-600">Sonuç Bulunamadı</h3>
              <p className="text-stone-400 mt-2">Aradığınız kriterlere uygun ürün yok.</p>
              <button 
-               onClick={() => {setSearchTerm(""); setSelectedCategory("Tümü")}}
+               onClick={() => {
+                 setSelectedCategory("Tümü");
+                 setFilters({
+                   priceRange: [0, 1000],
+                   inStock: null,
+                   category: '',
+                   searchTerm: '',
+                 });
+                 setSortBy('default');
+               }}
                className="mt-4 text-green-600 font-bold hover:underline"
              >
                Filtreleri Temizle
