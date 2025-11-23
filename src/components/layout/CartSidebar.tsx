@@ -4,6 +4,7 @@ import React from 'react';
 import { X, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { useCart } from '@/components/context/CartContext';
 import Link from 'next/link'; // <--- Link bileşenini çağırdık
+import CartCrossSell from '@/components/products/CartCrossSell'; // <--- SEPET ÇAPRAZ SATIŞ
 
 export default function CartSidebar() {
   const { isCartOpen, toggleCart, items, removeFromCart, totalPrice } = useCart();
@@ -77,6 +78,13 @@ export default function CartSidebar() {
             ))
           )}
         </div>
+
+        {/* ÇAPRAZ SATIŞ (Sepette) */}
+        {items.length > 0 && (
+          <div className="px-6 pb-4">
+            <CartCrossSell cartItemIds={items.map(item => item.id)} />
+          </div>
+        )}
 
         {/* ALT KISIM (Toplam & Ödeme Butonu) */}
         {items.length > 0 && (

@@ -8,6 +8,7 @@ import AddToCartButton from '@/components/products/AddToCartButton';
 import { supabase } from '@/lib/supabaseClient';
 import { Metadata } from 'next';
 import ReviewSection from '@/components/products/ReviewSection'; // <--- YORUM MODÜLÜ
+import CrossSell from '@/components/products/CrossSell'; // <--- ÇAPRAZ SATIŞ
 
 // Veri Tipi Tanımı
 interface Product {
@@ -186,6 +187,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
           </div>
         </div>
+
+        {/* --- ÇAPRAZ SATIŞ (Cross-Sell) --- */}
+        <CrossSell currentProductId={product.id} currentCategory={product.category} />
 
         {/* --- YENİ: YORUM BÖLÜMÜ EKLENDİ --- */}
         <ReviewSection productId={product.id} />
