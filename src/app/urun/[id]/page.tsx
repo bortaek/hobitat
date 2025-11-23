@@ -5,7 +5,8 @@ import { Star, Truck, ShieldCheck, ArrowLeft, Minus, Plus } from 'lucide-react';
 import Link from 'next/link';
 import AddToCartButton from '@/components/products/AddToCartButton';
 import { supabase } from '@/lib/supabaseClient';
-import { Metadata } from 'next'; // <--- SEO İÇİN GEREKLİ
+import { Metadata } from 'next';
+import ReviewSection from '@/components/products/ReviewSection'; // <--- YORUM MODÜLÜ
 
 // Veri Tipi Tanımı
 interface Product {
@@ -33,11 +34,9 @@ async function getProduct(id: string) {
 }
 
 // --- SEO (METADATA) OLUŞTURAN KISIM ---
-// Bu fonksiyon sayfa yüklenmeden önce çalışır ve Google'a bilgileri verir
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   
-  // Sadece SEO için ürün verisini hızlıca çek
   const { data: product } = await supabase
     .from('products')
     .select('title, description, image_url')
@@ -51,12 +50,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 
   return {
-    title: product.title, // Sekmede ürün adı yazacak
+    title: product.title,
     description: product.description ? product.description.slice(0, 160) : "Bu harika ürünü inceleyin.",
     openGraph: {
       title: product.title,
       description: product.description,
-      images: [product.image_url], // WhatsApp'ta paylaşınca ürünün resmi çıkacak
+      images: [product.image_url],
     },
   };
 }
@@ -154,6 +153,10 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
           </div>
         </div>
+
+        {/* --- YENİ: YORUM BÖLÜMÜ EKLENDİ --- */}
+        <ReviewSection productId={product.id} />
+
       </div>
 
       <Footer />
