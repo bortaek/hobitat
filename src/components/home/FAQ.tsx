@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 interface FAQItem {
   id: number;
@@ -106,7 +107,11 @@ const faqData: FAQItem[] = [
 
 const categories = ["Tümü", "Kargo ve Teslimat", "Dikim ve Bakım", "Ürün Bilgisi", "Garanti ve İade", "Destek", "Fiyatlandırma"];
 
-export default function FAQ() {
+interface FAQProps {
+  showAll?: boolean;
+}
+
+export default function FAQ({ showAll = false }: FAQProps) {
   const [openItems, setOpenItems] = useState<number[]>([]);
   const [selectedCategory, setSelectedCategory] = useState("Tümü");
 
@@ -118,9 +123,26 @@ export default function FAQ() {
     );
   };
 
-  const filteredFAQs = selectedCategory === "Tümü" 
+  let filteredFAQs = selectedCategory === "Tümü" 
     ? faqData 
     : faqData.filter(faq => faq.category === selectedCategory);
+
+  // Ana sayfada sadece ilk 5 soruyu göster
+  if (!showAll) {
+    filteredFAQs = filteredFAQs.slice(0, 5);
+  }
+
+  // Ana sayfada ilk 2 soruyu otomatik aç
+  useEffect(() => {
+    if (!showAll && filteredFAQs.length >= 2) {
+      const firstTwoIds = [filteredFAQs[0].id, filteredFAQs[1].id];
+      setOpenItems(firstTwoIds);
+    } else if (showAll) {
+      // Tüm sayfada hiçbir soru otomatik açık olmasın
+      setOpenItems([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showAll, selectedCategory]);
 
   return (
     <section className="py-20 bg-gradient-to-b from-white to-green-50">
@@ -216,6 +238,25 @@ export default function FAQ() {
             </motion.div>
           ))}
         </div>
+
+        {/* Tümünü Gör Butonu - Sadece ana sayfada göster */}
+        {!showAll && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.3 }}
+            className="mt-8 text-center"
+          >
+            <Link
+              href="/sss"
+              className="inline-flex items-center gap-2 bg-green-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition-all shadow-lg hover:shadow-xl hover:scale-105"
+            >
+              Tüm Soruları Gör
+              <ArrowRight size={20} />
+            </Link>
+          </motion.div>
+        )}
 
         {/* İletişim CTA */}
         <motion.div
