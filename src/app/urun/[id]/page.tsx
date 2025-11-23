@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabaseClient';
 import { Metadata } from 'next';
 import ReviewSection from '@/components/products/ReviewSection'; // <--- YORUM MODÜLÜ
 import CrossSell from '@/components/products/CrossSell'; // <--- ÇAPRAZ SATIŞ
+import ProductTimeline from '@/components/products/ProductTimeline'; // <--- ZAMAN TÜNELİ
 
 // Veri Tipi Tanımı
 interface Product {
@@ -187,6 +188,9 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
           </div>
         </div>
+
+        {/* --- ZAMAN TÜNELİ (Timeline) --- */}
+        <ProductTimeline category={product.category} productTitle={product.title} />
 
         {/* --- ÇAPRAZ SATIŞ (Cross-Sell) --- */}
         <CrossSell currentProductId={product.id} currentCategory={product.category} />
