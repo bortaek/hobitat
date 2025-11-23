@@ -9,7 +9,13 @@ import { supabase } from '@/lib/supabaseClient';
 import { Metadata } from 'next';
 import ReviewSection from '@/components/products/ReviewSection'; // <--- YORUM MODÜLÜ
 import CrossSell from '@/components/products/CrossSell'; // <--- ÇAPRAZ SATIŞ
-import ProductTimeline from '@/components/products/ProductTimeline'; // <--- ZAMAN TÜNELİ
+import dynamic from 'next/dynamic';
+
+// Dynamic import for client component
+const ProductTimeline = dynamic(() => import('@/components/products/ProductTimeline'), {
+  ssr: true,
+  loading: () => <div className="py-16 bg-gradient-to-b from-white to-green-50"><div className="container mx-auto px-6 text-center">Yükleniyor...</div></div>
+});
 
 // Veri Tipi Tanımı
 interface Product {
