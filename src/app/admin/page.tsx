@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { Trash2, Plus, Edit, LogOut, Package, X, Save, Loader2, UploadCloud, ShoppingBag, ChevronDown, ChevronUp, MapPin, Mail, User, Settings, FileText, Users, BarChart2, AlertTriangle, CheckSquare, Square, TrendingUp, DollarSign, Search, Filter } from 'lucide-react';
 import Image from 'next/image';
+import { useToast } from '@/components/context/ToastContext';
 
 // TİPLER
 interface Product {
@@ -43,6 +44,7 @@ interface Blog {
 }
 
 export default function AdminPage() {
+  const { success, error: showError, warning, info } = useToast();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
   const [activeTab, setActiveTab] = useState("products");
@@ -95,8 +97,9 @@ export default function AdminPage() {
       setIsAuthenticated(true);
       fetchProducts();
       fetchOrders(); // Analitik için gerekli
+      success("Giriş başarılı");
     } else {
-      alert("Hatalı Şifre!");
+      showError("Hatalı Şifre!");
     }
   };
 
@@ -198,27 +201,27 @@ export default function AdminPage() {
     
     const { error } = await supabase.from('products').delete().in('id', selectedProducts);
     if (error) {
-      alert('Hata: ' + error.message);
+      showError('Hata: ' + error.message);
     } else {
       setProducts(products.filter(p => !selectedProducts.includes(p.id)));
       setSelectedProducts([]);
-      alert('Ürünler silindi.');
+      success('Ürünler silindi.');
     }
   };
 
   const handleBulkStockUpdate = async () => {
     const newStock = parseInt(bulkStockValue);
-    if (isNaN(newStock)) return alert('Geçerli bir sayı giriniz.');
+    if (isNaN(newStock)) return warning('Geçerli bir sayı giriniz.');
     
     const { error } = await supabase.from('products').update({ stock: newStock }).in('id', selectedProducts);
     if (error) {
-      alert('Hata: ' + error.message);
+      showError('Hata: ' + error.message);
     } else {
       setProducts(products.map(p => selectedProducts.includes(p.id) ? { ...p, stock: newStock } : p));
       setIsBulkStockModalOpen(false);
       setSelectedProducts([]);
       setBulkStockValue("");
-      alert('Stoklar güncellendi.');
+      success('Stoklar güncellendi.');
     }
   };
 
@@ -245,7 +248,7 @@ export default function AdminPage() {
         if (error.code === 'PGRST116' || error.message.includes('does not exist') || error.message.includes('relation') && error.message.includes('does not exist')) {
           setShowSetupWarning(true);
         } else {
-          alert('Site ayarları çekilirken hata: ' + error.message);
+          showError('Site ayarları çekilirken hata: ' + error.message);
         }
       } else if (data && data.length > 0) {
         // Tablo var ve veri var - uyarıyı gizle
@@ -273,9 +276,9 @@ export default function AdminPage() {
     try {
       // Supabase RPC ile tablo oluşturma (eğer RPC fonksiyonu varsa)
       // Alternatif: Kullanıcıya SQL'i çalıştırmasını söyle
-      alert('Tablo oluşturma için lütfen Supabase Dashboard > SQL Editor\'de SITE_SETTINGS_SCHEMA.sql dosyasındaki komutları çalıştırın.');
+      info('Tablo oluşturma için lütfen Supabase Dashboard > SQL Editor\'de SITE_SETTINGS_SCHEMA.sql dosyasındaki komutları çalıştırın.');
     } catch (err: any) {
-      alert('Tablo oluşturulamadı: ' + err.message);
+      showError('Tablo oluşturulamadı: ' + err.message);
     }
   };
 
@@ -288,13 +291,13 @@ export default function AdminPage() {
         .upsert({ key, value, updated_at: new Date().toISOString() }, { onConflict: 'key' });
       
       if (error) {
-        alert('Kayıt hatası: ' + error.message);
+        showError('Kayıt hatası: ' + error.message);
       } else {
         setSiteSettings({ ...siteSettings, [key]: value });
-        alert('Ayarlar kaydedildi!');
+        success('Ayarlar kaydedildi!');
       }
     } catch (err: any) {
-      alert('Hata: ' + err.message);
+      showError('Hata: ' + err.message);
     } finally {
       setSettingsLoading(false);
     }
@@ -312,9 +315,9 @@ export default function AdminPage() {
       const { error } = await supabase.from('blogs').delete().eq('id', id);
       if (!error) {
         setBlogs(blogs.filter(b => b.id !== id));
-        alert('Blog yazısı silindi!');
+        success('Blog yazısı silindi!');
       } else {
-        alert('Silme hatası: ' + error.message);
+        showError('Silme hatası: ' + error.message);
       }
     }
   };
@@ -349,7 +352,7 @@ export default function AdminPage() {
         imageUrl = editingProduct.image_url;
       } else {
         // Yeni ürün eklerken resim zorunlu
-        return alert("Resim seçiniz!");
+        return warning("Resim seçiniz!");
       }
 
       const productData = {
@@ -364,11 +367,11 @@ export default function AdminPage() {
       if (editingProduct) {
         // Güncelle
         await supabase.from('products').update(productData).eq('id', editingProduct.id);
-        alert("Ürün güncellendi!");
+        success("Ürün güncellendi!");
       } else {
         // Yeni ekle
         await supabase.from('products').insert([productData]);
-        alert("Ürün eklendi!");
+        success("Ürün eklendi!");
       }
 
       setIsFormOpen(false);
@@ -466,12 +469,12 @@ export default function AdminPage() {
           .eq('id', editingBlog.id);
         
         if (error) throw error;
-        alert('Blog yazısı güncellendi!');
+        success('Blog yazısı güncellendi!');
       } else {
         // Yeni ekle
         const { error } = await supabase.from('blogs').insert([blogData]);
         if (error) throw error;
-        alert('Blog yazısı eklendi!');
+        success('Blog yazısı eklendi!');
       }
 
       setIsBlogFormOpen(false);

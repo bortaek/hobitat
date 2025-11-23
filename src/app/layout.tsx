@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/context/CartContext";
 import { ThemeProvider } from "@/components/context/ThemeContext";
+import { ToastProvider } from "@/components/context/ToastContext";
 import CartSidebar from "@/components/layout/CartSidebar";
 import SplashScreen from "@/components/ui/SplashScreen";
 
@@ -51,11 +52,13 @@ export default function RootLayout({
     <html lang="tr">
       <body className={`${inter.className} bg-stone-50 text-stone-900 dark:bg-stone-950 dark:text-stone-100 transition-colors duration-300`}>
         <ThemeProvider>
-          <SplashScreen />
-          <CartProvider>
-            <CartSidebar />
-            {children}
-          </CartProvider>
+          <ToastProvider>
+            <SplashScreen />
+            <CartProvider>
+              <CartSidebar />
+              {children}
+            </CartProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

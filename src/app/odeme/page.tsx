@@ -7,9 +7,11 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/navigation';
 import { Loader2, CheckCircle } from 'lucide-react';
+import { useToast } from '@/components/context/ToastContext';
 
 export default function CheckoutPage() {
   const { items, totalPrice, totalItems, clearCart } = useCart();
+  const { error: showError, success: showSuccess } = useToast();
   const router = useRouter();
   
   const [loading, setLoading] = useState(false);
@@ -91,12 +93,13 @@ export default function CheckoutPage() {
     const { error } = await supabase.from('orders').insert([orderData]);
 
     if (error) {
-      alert("Hata: " + error.message);
+      showError("Hata: " + error.message);
       setLoading(false);
     } else {
       setSuccess(true);
       clearCart(); // Sipariş başarılıysa sepeti temizle
       setLoading(false);
+      showSuccess("Siparişiniz başarıyla alındı!");
     }
   };
 

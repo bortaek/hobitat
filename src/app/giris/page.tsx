@@ -6,8 +6,10 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useRouter } from 'next/navigation';
 import { Loader2, LogIn, UserPlus, Mail, Lock } from 'lucide-react';
+import { useToast } from '@/components/context/ToastContext';
 
 export default function LoginPage() {
+  const { success, error: showError, info } = useToast();
   const supabase = createClientComponentClient();
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true); // Giriş mi Kayıt mı?
@@ -26,7 +28,7 @@ export default function LoginPage() {
       });
       
       if (error) {
-        alert("Giriş hatası: " + error.message);
+        showError("Giriş hatası: " + error.message);
         setLoading(false);
         return;
       }
@@ -40,10 +42,11 @@ export default function LoginPage() {
         const { data: { session: verifySession } } = await supabase.auth.getSession();
         
         if (verifySession?.user) {
+          success("Giriş başarılı, yönlendiriliyorsunuz...");
           // Tam sayfa yenilemesi ile yönlendir - bu middleware'in çalışmasını garanti eder
           window.location.href = '/hesabim';
         } else {
-          alert("Giriş başarılı ama oturum kurulamadı. Lütfen sayfayı yenileyip tekrar deneyin.");
+          showError("Giriş başarılı ama oturum kurulamadı. Lütfen sayfayı yenileyip tekrar deneyin.");
           setLoading(false);
         }
       }
@@ -54,10 +57,10 @@ export default function LoginPage() {
         password: formData.password,
       });
       if (error) {
-        alert("Kayıt hatası: " + error.message);
+        showError("Kayıt hatası: " + error.message);
         setLoading(false);
       } else {
-        alert("Kayıt başarılı! Şimdi giriş yapabilirsiniz.");
+        success("Kayıt başarılı! Şimdi giriş yapabilirsiniz.");
         setIsLogin(true); // Giriş ekranına dön
         setLoading(false);
       }

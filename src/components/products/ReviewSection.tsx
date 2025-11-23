@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Star, User, Send, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/context/ToastContext';
 
 interface Review {
   id: number;
@@ -16,6 +17,7 @@ interface Review {
 
 export default function ReviewSection({ productId }: { productId: number }) {
   const router = useRouter();
+  const { success, error: showError } = useToast();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -63,11 +65,12 @@ export default function ReviewSection({ productId }: { productId: number }) {
     });
 
     if (error) {
-      alert("Yorum gönderilemedi: " + error.message);
+      showError("Yorum gönderilemedi: " + error.message);
     } else {
       setNewComment("");
       setNewRating(5);
       fetchReviews(); // Listeyi yenile
+      success("Yorumunuz gönderildi!");
     }
     setSubmitting(false);
   };
@@ -76,6 +79,7 @@ export default function ReviewSection({ productId }: { productId: number }) {
     if (confirm("Yorumunu silmek istiyor musun?")) {
       await supabase.from('reviews').delete().eq('id', id);
       fetchReviews();
+      success("Yorum silindi");
     }
   };
 

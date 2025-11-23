@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import { useToast } from '@/components/context/ToastContext';
 
 // Hobitat veritabanı yapısına uygun tipler
 interface OrderItem {
@@ -50,6 +51,7 @@ interface Profile {
 type ActiveSection = 'dashboard' | 'orders' | 'favorites' | 'profile' | 'addresses';
 
 export default function AccountPage() {
+  const { success, error: showError } = useToast();
   const supabase = createClientComponentClient();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -246,9 +248,9 @@ export default function AccountPage() {
       });
 
     if (error) {
-      alert('Kayıt sırasında hata oluştu: ' + error.message);
+      showError('Kayıt sırasında hata oluştu: ' + error.message);
     } else {
-      alert('Bilgileriniz kaydedildi!');
+      success('Bilgileriniz kaydedildi!');
       setProfile({
         full_name: formData.full_name,
         phone: formData.phone,
@@ -276,7 +278,10 @@ export default function AccountPage() {
       .eq('id', favoriteId);
 
     if (!error) {
+      success('Ürün favorilerden çıkarıldı');
       setFavorites(favorites.filter(fav => fav.id !== favoriteId));
+    } else {
+      showError('Favori silinemedi: ' + error.message);
     }
   };
 

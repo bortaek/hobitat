@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useToast } from './ToastContext';
 
 interface CartItem {
   id: number;
@@ -28,6 +29,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const { success, error, warning } = useToast();
 
   // Sepeti yerel depolamadan (localStorage) yükle - İsteğe bağlı, sayfa yenilenince sepet gitmesin diye
   useEffect(() => {
@@ -45,7 +47,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addToCart = (product: any) => {
     // Stok kontrolü
     if (product.stock !== undefined && product.stock <= 0) {
-      alert('Üzgünüz, bu ürün stokta bulunmamaktadır.');
+      error('Üzgünüz, bu ürün stokta bulunmamaktadır.');
       return;
     }
 
@@ -56,15 +58,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (existingItem) {
         const newQuantity = existingItem.quantity + 1;
         if (product.stock !== undefined && newQuantity > product.stock) {
-          alert(`Üzgünüz, stokta sadece ${product.stock} adet bulunmaktadır.`);
+          warning(`Üzgünüz, stokta sadece ${product.stock} adet bulunmaktadır.`);
           return currentItems;
         }
+        success('Sepet güncellendi');
         return currentItems.map(item =>
           item.id === product.id ? { ...item, quantity: newQuantity } : item
         );
       }
       
       // Yeni ürün ekleme
+      success(`${product.title} sepete eklendi`);
       return [...currentItems, { ...product, quantity: 1 }];
     });
     setIsCartOpen(true);
@@ -86,7 +90,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (item.id === id) {
           // Stok kontrolü
           if (item.stock !== undefined && quantity > item.stock) {
-            alert(`Üzgünüz, stokta sadece ${item.stock} adet bulunmaktadır.`);
+            warning(`Üzgünüz, stokta sadece ${item.stock} adet bulunmaktadır.`);
             return item;
           }
           return { ...item, quantity };
