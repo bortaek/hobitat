@@ -1,13 +1,37 @@
+import dynamic from 'next/dynamic';
 import Header from '../components/layout/Header';
 import HeroSection from '../components/home/HeroSection';
-import ValueProps from '../components/home/ValueProps';
-import FeaturedProducts from '../components/home/FeaturedProducts';
-import FeaturedBlogs from '../components/home/FeaturedBlogs';
-import ProductionProcess from '../components/home/ProductionProcess';
-import WhyChooseUs from '../components/home/WhyChooseUs';
-import Announcements from '../components/home/Announcements';
 import Footer from '../components/layout/Footer';
-import ScrollAnimation from '../components/ui/ScrollAnimation';
+
+// Lazy load animasyonlu component'ler (JavaScript bundle'ı küçültür)
+const ScrollAnimation = dynamic(() => import('../components/ui/ScrollAnimation'), {
+  ssr: true,
+});
+
+const Announcements = dynamic(() => import('../components/home/Announcements'), {
+  ssr: true,
+  loading: () => <div className="h-32 bg-green-50 animate-pulse" />,
+});
+
+const FeaturedProducts = dynamic(() => import('../components/home/FeaturedProducts'), {
+  ssr: true,
+});
+
+const WhyChooseUs = dynamic(() => import('../components/home/WhyChooseUs'), {
+  ssr: true,
+});
+
+const ProductionProcess = dynamic(() => import('../components/home/ProductionProcess'), {
+  ssr: true,
+});
+
+const FeaturedBlogs = dynamic(() => import('../components/home/FeaturedBlogs'), {
+  ssr: true,
+});
+
+const ValueProps = dynamic(() => import('../components/home/ValueProps'), {
+  ssr: true,
+});
 
 export default function Home() {
   return (

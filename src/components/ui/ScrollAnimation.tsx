@@ -31,7 +31,7 @@ export default function ScrollAnimation({
       transition: {
         duration: 0.6,
         delay,
-        ease: [0.25, 0.46, 0.45, 0.94], // Custom easing
+        ease: "easeOut" as const,
       },
     },
   };
@@ -48,4 +48,3 @@ export default function ScrollAnimation({
     </motion.div>
   );
 }
-

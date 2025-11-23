@@ -19,7 +19,9 @@ export default function HeroSection() {
           src="https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?q=80&w=2070"
           alt="Bahçe Arkaplan"
           fill
-          priority // <--- BU ÇOK ÖNEMLİ! (LCP'yi düşürür, resmi hemen yükler)
+          priority
+          fetchPriority="high"
+          quality={85}
           className="object-cover"
         />
       </motion.div>

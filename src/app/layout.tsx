@@ -5,7 +5,12 @@ import { CartProvider } from "@/components/context/CartContext";
 import CartSidebar from "@/components/layout/CartSidebar";
 import SplashScreen from "@/components/ui/SplashScreen";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap',
+  preload: true,
+  variable: '--font-inter',
+});
 
 // --- BURASI SİTENİN KİMLİK KARTIDIR (SEO) ---
 export const metadata: Metadata = {
