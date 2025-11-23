@@ -33,6 +33,10 @@ const ValueProps = dynamic(() => import('../components/home/ValueProps'), {
   ssr: true,
 });
 
+const FAQ = dynamic(() => import('../components/home/FAQ'), {
+  ssr: true,
+});
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#F9F8F6] text-stone-800 font-sans flex flex-col">
@@ -68,6 +72,11 @@ export default function Home() {
       {/* 5. Güven Kutucukları */}
       <ScrollAnimation delay={0.1}>
         <ValueProps />
+      </ScrollAnimation>
+      
+      {/* 6. Sıkça Sorulan Sorular */}
+      <ScrollAnimation delay={0.2}>
+        <FAQ />
       </ScrollAnimation>
       
       <Footer />
