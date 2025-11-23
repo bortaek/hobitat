@@ -308,7 +308,7 @@ export default function AdminPage() {
   const handleCloseForm = () => {
     setIsFormOpen(false);
     setEditingProduct(null);
-    setFormData({ title: "", category: "", price: "", description: "" });
+    setFormData({ title: "", category: "", price: "", description: "", stock: "" });
     setImageFile(null);
     setImagePreview(null);
   };
