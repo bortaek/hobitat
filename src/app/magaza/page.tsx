@@ -13,6 +13,7 @@ interface Product {
   category: string;
   price: number;
   image_url: string;
+  stock?: number;
 }
 
 const CATEGORIES = ["Tümü", "Sebze", "Meyve", "Baharat", "Toprak"];
@@ -120,6 +121,7 @@ export default function ShopPage() {
                 category={product.category}
                 price={product.price.toString()}
                 image={product.image_url}
+                stock={product.stock}
               />
             ))}
           </div>

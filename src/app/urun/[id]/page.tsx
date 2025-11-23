@@ -17,6 +17,7 @@ interface Product {
   price: number;
   description: string;
   image_url: string;
+  stock?: number;
 }
 
 // Supabase'den Tek Ürün Çeken Fonksiyon
@@ -104,6 +105,17 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             <span className="absolute top-4 left-4 bg-green-600 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
               {product.category}
             </span>
+            {/* Stok Durumu Badge */}
+            {(product.stock === 0 || product.stock === undefined) && (
+              <span className="absolute top-4 right-4 bg-red-500 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                Stokta Yok
+              </span>
+            )}
+            {product.stock && product.stock > 0 && product.stock < 10 && (
+              <span className="absolute top-4 right-4 bg-yellow-500 text-white px-4 py-1 rounded-full text-sm font-bold shadow-lg">
+                Son {product.stock} Adet
+              </span>
+            )}
           </div>
 
           {/* SAĞ: BİLGİ */}
@@ -135,13 +147,29 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
               <div>
                 <p className="text-stone-400 text-sm font-medium">Satış Fiyatı</p>
                 <p className="text-4xl font-bold text-green-800">{product.price} ₺</p>
+                {product.stock !== undefined && (
+                  <p className={`text-sm font-medium mt-2 ${
+                    product.stock === 0 
+                      ? 'text-red-600' 
+                      : product.stock < 10 
+                      ? 'text-yellow-600' 
+                      : 'text-green-600'
+                  }`}>
+                    {product.stock === 0 
+                      ? '⚠️ Stokta yok' 
+                      : product.stock < 10 
+                      ? `⚠️ Son ${product.stock} adet` 
+                      : `✓ Stokta ${product.stock} adet`}
+                  </p>
+                )}
               </div>
 
               <AddToCartButton product={{
                 id: product.id,
                 title: product.title,
                 price: product.price,
-                image: product.image_url
+                image: product.image_url,
+                stock: product.stock
               }} />
             </div>
 

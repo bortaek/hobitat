@@ -13,6 +13,7 @@ interface Product {
   price: number;
   image_url: string;
   description: string;
+  stock?: number;
 }
 
 interface Order {
@@ -57,7 +58,7 @@ export default function AdminPage() {
   // Form State'leri
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [formData, setFormData] = useState({ title: "", category: "", price: "", description: "" });
+  const [formData, setFormData] = useState({ title: "", category: "", price: "", description: "", stock: "" });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -253,7 +254,8 @@ export default function AdminPage() {
         category: formData.category,
         price: parseFloat(formData.price),
         image_url: imageUrl,
-        description: formData.description
+        description: formData.description,
+        stock: formData.stock ? parseInt(formData.stock) : 0
       };
 
       if (editingProduct) {
@@ -270,7 +272,7 @@ export default function AdminPage() {
       setEditingProduct(null);
       fetchProducts();
       
-      setFormData({ title: "", category: "", price: "", description: "" });
+      setFormData({ title: "", category: "", price: "", description: "", stock: "" });
       setImageFile(null);
       setImagePreview(null);
 
@@ -295,7 +297,8 @@ export default function AdminPage() {
       title: product.title,
       category: product.category,
       price: product.price.toString(),
-      description: product.description || ""
+      description: product.description || "",
+      stock: product.stock?.toString() || "0"
     });
     setImagePreview(product.image_url);
     setImageFile(null); // Yeni resim seçilmedi, mevcut resim kullanılacak
@@ -455,14 +458,14 @@ export default function AdminPage() {
           <>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-stone-700">Ürün Listesi</h2>
-              <button onClick={() => { setEditingProduct(null); setFormData({ title: "", category: "", price: "", description: "" }); setImageFile(null); setImagePreview(null); setIsFormOpen(true); }} className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700">
+              <button onClick={() => { setEditingProduct(null); setFormData({ title: "", category: "", price: "", description: "", stock: "" }); setImageFile(null); setImagePreview(null); setIsFormOpen(true); }} className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700">
                 <Plus size={20} /> Yeni Ürün
               </button>
             </div>
             <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
               <table className="w-full text-left">
                 <thead className="bg-stone-50 text-stone-500 font-medium border-b border-stone-200">
-                  <tr><th className="p-4">Resim</th><th className="p-4">Ad</th><th className="p-4">Fiyat</th><th className="p-4 text-right">İşlem</th></tr>
+                  <tr><th className="p-4">Resim</th><th className="p-4">Ad</th><th className="p-4">Fiyat</th><th className="p-4">Stok</th><th className="p-4 text-right">İşlem</th></tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
                   {products.map(p => (
@@ -470,6 +473,17 @@ export default function AdminPage() {
                       <td className="p-4"><div className="w-10 h-10 bg-stone-100 rounded overflow-hidden relative"><Image src={p.image_url} alt={p.title} fill className="object-cover"/></div></td>
                       <td className="p-4 font-medium">{p.title}</td>
                       <td className="p-4">{p.price} ₺</td>
+                      <td className="p-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          (p.stock || 0) === 0 
+                            ? 'bg-red-100 text-red-700' 
+                            : (p.stock || 0) < 10 
+                            ? 'bg-yellow-100 text-yellow-700' 
+                            : 'bg-green-100 text-green-700'
+                        }`}>
+                          {p.stock || 0} adet
+                        </span>
+                      </td>
                       <td className="p-4 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <button onClick={() => handleEditProduct(p)} className="text-blue-500 hover:text-blue-700" title="Düzenle">
@@ -1306,6 +1320,17 @@ export default function AdminPage() {
                   <option value="">Kategori</option><option>Sebze</option><option>Meyve</option><option>Baharat</option><option>Toprak</option>
                 </select>
                 <input required type="number" className="w-full p-3 border border-stone-200 rounded-xl" placeholder="Fiyat" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <input type="number" min="0" className="w-full p-3 border border-stone-200 rounded-xl" placeholder="Stok Miktarı" value={formData.stock} onChange={e => setFormData({...formData, stock: e.target.value})} />
+                <div className="flex items-center text-sm text-stone-500">
+                  {formData.stock && parseInt(formData.stock) === 0 && (
+                    <span className="text-red-600 font-medium">⚠️ Stokta yok</span>
+                  )}
+                  {formData.stock && parseInt(formData.stock) > 0 && parseInt(formData.stock) < 10 && (
+                    <span className="text-yellow-600 font-medium">⚠️ Stok azalıyor</span>
+                  )}
+                </div>
               </div>
               <textarea rows={3} className="w-full p-3 border border-stone-200 rounded-xl" placeholder="Açıklama" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
               <button type="submit" disabled={isSaving} className="w-full bg-green-600 text-white py-3 rounded-xl font-bold flex justify-center gap-2">{isSaving ? <Loader2 className="animate-spin"/> : <><Save size={20}/> Kaydet</>}</button>

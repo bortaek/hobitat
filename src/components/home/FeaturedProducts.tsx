@@ -14,6 +14,7 @@ interface Product {
   category: string;
   price: number;
   image_url: string;
+  stock?: number;
 }
 
 export default function FeaturedProducts() {
@@ -106,7 +107,8 @@ export default function FeaturedProducts() {
                   title={product.title}
                   category={product.category}
                   price={product.price.toString()} 
-                  image={product.image_url} 
+                  image={product.image_url}
+                  stock={product.stock}
                 />
               </motion.div>
             ))}

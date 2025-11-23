@@ -8,6 +8,7 @@ interface CartItem {
   price: number;
   image: string;
   quantity: number;
+  stock?: number;
 }
 
 interface CartContextType {
@@ -41,13 +42,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items]);
 
   const addToCart = (product: any) => {
+    // Stok kontrolü
+    if (product.stock !== undefined && product.stock <= 0) {
+      alert('Üzgünüz, bu ürün stokta bulunmamaktadır.');
+      return;
+    }
+
     setItems(currentItems => {
       const existingItem = currentItems.find(item => item.id === product.id);
+      
+      // Mevcut ürün için stok kontrolü
       if (existingItem) {
+        const newQuantity = existingItem.quantity + 1;
+        if (product.stock !== undefined && newQuantity > product.stock) {
+          alert(`Üzgünüz, stokta sadece ${product.stock} adet bulunmaktadır.`);
+          return currentItems;
+        }
         return currentItems.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === product.id ? { ...item, quantity: newQuantity } : item
         );
       }
+      
+      // Yeni ürün ekleme
       return [...currentItems, { ...product, quantity: 1 }];
     });
     setIsCartOpen(true);
