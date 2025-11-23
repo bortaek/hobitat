@@ -65,6 +65,12 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
               </Link>
             </li>
             <li>
+              <Link href="/blog" onClick={onClose} className="flex items-center justify-between px-6 py-4 text-stone-700 hover:bg-white hover:text-green-700 transition font-medium">
+                Blog
+                <ChevronRight size={16} className="opacity-50" />
+              </Link>
+            </li>
+            <li>
               <Link href="#" onClick={onClose} className="flex items-center justify-between px-6 py-4 text-orange-600 hover:bg-white font-bold transition">
                 Toptan Satış
                 <ChevronRight size={16} className="opacity-50" />

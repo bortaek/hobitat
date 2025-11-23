@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { Trash2, Plus, Edit, LogOut, Package, X, Save, Loader2, UploadCloud, ShoppingBag, ChevronDown, ChevronUp, MapPin, Mail, User, Settings } from 'lucide-react';
+import { Trash2, Plus, Edit, LogOut, Package, X, Save, Loader2, UploadCloud, ShoppingBag, ChevronDown, ChevronUp, MapPin, Mail, User, Settings, FileText } from 'lucide-react';
 import Image from 'next/image';
 
 // TİPLER
@@ -26,6 +26,21 @@ interface Order {
   items: any[];
 }
 
+interface Blog {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  featured_image: string;
+  author: string;
+  published_at: string;
+  is_published: boolean;
+  keywords: string[];
+  category: string;
+  views: number;
+}
+
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
@@ -33,6 +48,7 @@ export default function AdminPage() {
 
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(false);
   
   // Sipariş Detayını Açıp Kapatmak İçin
@@ -44,6 +60,22 @@ export default function AdminPage() {
   const [formData, setFormData] = useState({ title: "", category: "", price: "", description: "" });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  
+  // Blog Form State'leri
+  const [isBlogFormOpen, setIsBlogFormOpen] = useState(false);
+  const [blogFormData, setBlogFormData] = useState({
+    title: "",
+    slug: "",
+    excerpt: "",
+    content: "",
+    featured_image: "",
+    author: "",
+    published_at: "",
+    is_published: false,
+    keywords: "",
+    category: ""
+  });
+  const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
 
   // Giriş Yap
   const handleLogin = (e: React.FormEvent) => {
@@ -70,10 +102,18 @@ export default function AdminPage() {
     setLoading(false);
   };
 
+  const fetchBlogs = async () => {
+    setLoading(true);
+    const { data } = await supabase.from('blogs').select('*').order('created_at', { ascending: false });
+    setBlogs(data || []);
+    setLoading(false);
+  };
+
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     if (tab === "products") fetchProducts();
     if (tab === "orders") fetchOrders();
+    if (tab === "blogs") fetchBlogs();
     if (tab === "settings") fetchSiteSettings();
   };
 
@@ -162,6 +202,18 @@ export default function AdminPage() {
     }
   };
 
+  const handleDeleteBlog = async (id: number) => {
+    if (confirm("Blog yazısını silmek istediğinize emin misiniz?")) {
+      const { error } = await supabase.from('blogs').delete().eq('id', id);
+      if (!error) {
+        setBlogs(blogs.filter(b => b.id !== id));
+        alert('Blog yazısı silindi!');
+      } else {
+        alert('Silme hatası: ' + error.message);
+      }
+    }
+  };
+
   const updateOrderStatus = async (id: number, newStatus: string) => {
     await supabase.from('orders').update({ status: newStatus }).eq('id', id);
     // Yerel state'i güncelle (tekrar fetch yapmaya gerek yok)
@@ -215,6 +267,117 @@ export default function AdminPage() {
     }
   };
 
+  // Blog Yönetimi Fonksiyonları
+  const handleSaveBlog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+
+    try {
+      // Anahtar kelimeleri array'e çevir
+      const keywordsArray = blogFormData.keywords
+        .split(',')
+        .map((k: string) => k.trim())
+        .filter((k: string) => k.length > 0);
+
+      // Slug oluştur (başlıktan otomatik)
+      const slug = blogFormData.slug || blogFormData.title
+        .toLowerCase()
+        .replace(/ğ/g, 'g')
+        .replace(/ü/g, 'u')
+        .replace(/ş/g, 's')
+        .replace(/ı/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ç/g, 'c')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      // Yayın tarihi: Eğer boşsa bugünün tarihini kullan
+      const publishedDate = blogFormData.published_at 
+        ? new Date(blogFormData.published_at).toISOString()
+        : new Date().toISOString();
+
+      const blogData = {
+        title: blogFormData.title,
+        slug: slug,
+        excerpt: blogFormData.excerpt,
+        content: blogFormData.content,
+        featured_image: blogFormData.featured_image,
+        author: blogFormData.author || 'Hobitat Ekibi',
+        published_at: blogFormData.is_published ? publishedDate : null,
+        is_published: blogFormData.is_published,
+        keywords: keywordsArray,
+        category: blogFormData.category
+      };
+
+      if (editingBlog) {
+        // Güncelle
+        const { error } = await supabase
+          .from('blogs')
+          .update({ ...blogData, updated_at: new Date().toISOString() })
+          .eq('id', editingBlog.id);
+        
+        if (error) throw error;
+        alert('Blog yazısı güncellendi!');
+      } else {
+        // Yeni ekle
+        const { error } = await supabase.from('blogs').insert([blogData]);
+        if (error) throw error;
+        alert('Blog yazısı eklendi!');
+      }
+
+      setIsBlogFormOpen(false);
+      setEditingBlog(null);
+      setBlogFormData({
+        title: "",
+        slug: "",
+        excerpt: "",
+        content: "",
+        featured_image: "",
+        author: "",
+        published_at: "",
+        is_published: false,
+        keywords: "",
+        category: ""
+      });
+      fetchBlogs();
+
+    } catch (error: any) {
+      alert("Hata: " + error.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleEditBlog = (blog: Blog) => {
+    setEditingBlog(blog);
+    setBlogFormData({
+      title: blog.title,
+      slug: blog.slug,
+      excerpt: blog.excerpt || '',
+      content: blog.content || '',
+      featured_image: blog.featured_image || '',
+      author: blog.author || '',
+      published_at: blog.published_at ? new Date(blog.published_at).toISOString().split('T')[0] : '',
+      is_published: blog.is_published,
+      keywords: blog.keywords?.join(', ') || '',
+      category: blog.category || ''
+    });
+    setIsBlogFormOpen(true);
+  };
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u')
+      .replace(/ş/g, 's')
+      .replace(/ı/g, 'i')
+      .replace(/ö/g, 'o')
+      .replace(/ç/g, 'c')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-100">
@@ -235,6 +398,7 @@ export default function AdminPage() {
           <div className="flex bg-stone-100 p-1 rounded-lg">
             <button onClick={() => handleTabChange("products")} className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === "products" ? "bg-white shadow text-stone-800" : "text-stone-500"}`}>Ürünler</button>
             <button onClick={() => handleTabChange("orders")} className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === "orders" ? "bg-white shadow text-stone-800" : "text-stone-500"}`}>Siparişler</button>
+            <button onClick={() => handleTabChange("blogs")} className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === "blogs" ? "bg-white shadow text-stone-800" : "text-stone-500"}`}><FileText size={16} className="inline mr-1" />Bloglar</button>
             <button onClick={() => handleTabChange("settings")} className={`px-4 py-2 rounded-md text-sm font-bold transition ${activeTab === "settings" ? "bg-white shadow text-stone-800" : "text-stone-500"}`}><Settings size={16} className="inline mr-1" />Site Ayarları</button>
           </div>
         </div>
@@ -373,6 +537,110 @@ export default function AdminPage() {
                 </div>
               ))}
               {orders.length === 0 && <p className="text-center text-stone-400 py-10">Henüz sipariş yok.</p>}
+            </div>
+          </>
+        )}
+
+        {/* --- BLOG YÖNETİMİ --- */}
+        {activeTab === "blogs" && (
+          <>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-stone-700">Blog Yazıları</h2>
+              <button 
+                onClick={() => {
+                  setEditingBlog(null);
+                  setBlogFormData({
+                    title: "",
+                    slug: "",
+                    excerpt: "",
+                    content: "",
+                    featured_image: "",
+                    author: "",
+                    published_at: "",
+                    is_published: false,
+                    keywords: "",
+                    category: ""
+                  });
+                  setIsBlogFormOpen(true);
+                }} 
+                className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-green-700"
+              >
+                <Plus size={20} /> Yeni Blog
+              </button>
+            </div>
+            <div className="bg-white rounded-2xl shadow-sm border border-stone-200 overflow-hidden">
+              <table className="w-full text-left">
+                <thead className="bg-stone-50 text-stone-500 font-medium border-b border-stone-200">
+                  <tr>
+                    <th className="p-4">Resim</th>
+                    <th className="p-4">Başlık</th>
+                    <th className="p-4">Kategori</th>
+                    <th className="p-4">Durum</th>
+                    <th className="p-4">Anahtar Kelimeler</th>
+                    <th className="p-4 text-right">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                  {blogs.map(blog => (
+                    <tr key={blog.id} className="hover:bg-stone-50">
+                      <td className="p-4">
+                        <div className="w-16 h-16 bg-stone-100 rounded overflow-hidden relative">
+                          {blog.featured_image ? (
+                            <Image src={blog.featured_image} alt={blog.title} fill className="object-cover"/>
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-xs text-stone-400">No Img</div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="font-medium text-stone-800">{blog.title}</div>
+                        <div className="text-xs text-stone-500 mt-1">{blog.excerpt?.substring(0, 50)}...</div>
+                      </td>
+                      <td className="p-4">{blog.category || '-'}</td>
+                      <td className="p-4">
+                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          blog.is_published 
+                            ? 'bg-green-100 text-green-700' 
+                            : 'bg-gray-100 text-gray-700'
+                        }`}>
+                          {blog.is_published ? 'Yayında' : 'Taslak'}
+                        </span>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex flex-wrap gap-1 max-w-xs">
+                          {blog.keywords && blog.keywords.slice(0, 2).map((keyword, idx) => (
+                            <span key={idx} className="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded">
+                              {keyword}
+                            </span>
+                          ))}
+                          {blog.keywords && blog.keywords.length > 2 && (
+                            <span className="text-xs text-stone-400">+{blog.keywords.length - 2}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="p-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button 
+                            onClick={() => handleEditBlog(blog)} 
+                            className="text-blue-500 hover:text-blue-700"
+                            title="Düzenle"
+                          >
+                            <Edit size={18} />
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteBlog(blog.id)} 
+                            className="text-red-500 hover:text-red-700"
+                            title="Sil"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {blogs.length === 0 && <p className="text-center text-stone-400 py-10">Henüz blog yazısı yok.</p>}
             </div>
           </>
         )}
@@ -787,7 +1055,166 @@ export default function AdminPage() {
 
       </div>
 
-      {/* FORM MODALI */}
+      {/* BLOG FORM MODALI */}
+      {isBlogFormOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b border-stone-100 flex justify-between items-center bg-stone-50 sticky top-0 z-10">
+              <h3 className="text-lg font-bold text-stone-800">{editingBlog ? 'Blog Düzenle' : 'Yeni Blog Ekle'}</h3>
+              <button onClick={() => { setIsBlogFormOpen(false); setEditingBlog(null); }} className="p-2 hover:bg-stone-200 rounded-full transition">
+                <X size={20} className="text-stone-500" />
+              </button>
+            </div>
+            <form onSubmit={handleSaveBlog} className="p-6 space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-stone-600 mb-2">Başlık *</label>
+                  <input 
+                    required
+                    type="text" 
+                    className="w-full p-3 border border-stone-200 rounded-xl" 
+                    placeholder="Blog Başlığı"
+                    value={blogFormData.title}
+                    onChange={(e) => {
+                      setBlogFormData({...blogFormData, title: e.target.value});
+                      if (!editingBlog && !blogFormData.slug) {
+                        setBlogFormData({...blogFormData, title: e.target.value, slug: generateSlug(e.target.value)});
+                      }
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-stone-600 mb-2">Slug (URL) *</label>
+                  <input 
+                    required
+                    type="text" 
+                    className="w-full p-3 border border-stone-200 rounded-xl" 
+                    placeholder="blog-yazi-url"
+                    value={blogFormData.slug}
+                    onChange={(e) => setBlogFormData({...blogFormData, slug: e.target.value})}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-600 mb-2">Özet</label>
+                <textarea 
+                  rows={2}
+                  className="w-full p-3 border border-stone-200 rounded-xl" 
+                  placeholder="Kısa açıklama (liste sayfasında görünecek)"
+                  value={blogFormData.excerpt}
+                  onChange={(e) => setBlogFormData({...blogFormData, excerpt: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-600 mb-2">İçerik (HTML) *</label>
+                <textarea 
+                  required
+                  rows={12}
+                  className="w-full p-3 border border-stone-200 rounded-xl font-mono text-sm" 
+                  placeholder="HTML içerik yazın..."
+                  value={blogFormData.content}
+                  onChange={(e) => setBlogFormData({...blogFormData, content: e.target.value})}
+                />
+                <div className="mt-2 p-3 bg-stone-50 rounded-lg text-xs text-stone-600">
+                  <p className="font-semibold mb-1">HTML Şablonu (Kopyalayıp düzenleyin):</p>
+                  <pre className="text-xs overflow-x-auto">{`<h2>Başlık</h2>
+<p>Paragraf metni buraya yazılır.</p>
+<h3>Alt Başlık</h3>
+<ul>
+  <li>Liste öğesi 1</li>
+  <li>Liste öğesi 2</li>
+</ul>
+<p><strong>Kalın metin</strong> ve normal metin.</p>`}</pre>
+                  <p className="mt-2 text-stone-500">Kullanabileceğiniz HTML etiketleri: h2, h3, p, ul, li, ol, strong, em, a (link)</p>
+                </div>
+              </div>
+              <div className="grid md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-stone-600 mb-2">Kapak Resmi URL</label>
+                <input 
+                  type="text" 
+                  className="w-full p-3 border border-stone-200 rounded-xl" 
+                  placeholder="https://images.unsplash.com/photo-..."
+                  value={blogFormData.featured_image}
+                  onChange={(e) => setBlogFormData({...blogFormData, featured_image: e.target.value})}
+                />
+                <p className="text-xs text-stone-500 mt-1">
+                  Unsplash'den resim alabilirsiniz. Örnek: 
+                  <a href="https://unsplash.com" target="_blank" className="text-green-600 hover:underline ml-1">unsplash.com</a>
+                </p>
+              </div>
+                <div>
+                  <label className="block text-sm font-medium text-stone-600 mb-2">Yazar</label>
+                  <input 
+                    type="text" 
+                    className="w-full p-3 border border-stone-200 rounded-xl" 
+                    placeholder="Hobitat Ekibi"
+                    value={blogFormData.author}
+                    onChange={(e) => setBlogFormData({...blogFormData, author: e.target.value})}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-stone-600 mb-2">Kategori</label>
+                  <select 
+                    className="w-full p-3 border border-stone-200 rounded-xl bg-white"
+                    value={blogFormData.category}
+                    onChange={(e) => setBlogFormData({...blogFormData, category: e.target.value})}
+                  >
+                    <option value="">Kategori Seç</option>
+                    <option value="Rehber">Rehber</option>
+                    <option value="Bakım">Bakım</option>
+                    <option value="Haberler">Haberler</option>
+                    <option value="İpuçları">İpuçları</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-stone-600 mb-2">Anahtar Kelimeler (virgülle ayırın)</label>
+                <input 
+                  type="text" 
+                  className="w-full p-3 border border-stone-200 rounded-xl" 
+                  placeholder="balkon bahçesi, domates, fide bakımı"
+                  value={blogFormData.keywords}
+                  onChange={(e) => setBlogFormData({...blogFormData, keywords: e.target.value})}
+                />
+                <p className="text-xs text-stone-500 mt-1">Örnek: fide bakımı, balkon bahçesi, domates yetiştirme</p>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-stone-600 mb-2">Yayın Tarihi</label>
+                  <input 
+                    type="date" 
+                    className="w-full p-3 border border-stone-200 rounded-xl" 
+                    value={blogFormData.published_at}
+                    onChange={(e) => setBlogFormData({...blogFormData, published_at: e.target.value})}
+                  />
+                  <p className="text-xs text-stone-500 mt-1">Boş bırakırsanız bugünün tarihi kullanılır</p>
+                </div>
+                <div className="flex items-center pt-8">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="w-5 h-5 text-green-600 rounded"
+                      checked={blogFormData.is_published}
+                      onChange={(e) => setBlogFormData({...blogFormData, is_published: e.target.checked})}
+                    />
+                    <span className="text-sm font-medium text-stone-700">Yayında göster</span>
+                  </label>
+                </div>
+              </div>
+              <button 
+                type="submit" 
+                disabled={isSaving} 
+                className="w-full bg-green-600 text-white py-3 rounded-xl font-bold flex justify-center gap-2 disabled:opacity-50"
+              >
+                {isSaving ? <Loader2 className="animate-spin" /> : <><Save size={20}/> {editingBlog ? 'Güncelle' : 'Kaydet'}</>}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ÜRÜN FORM MODALI */}
       {isFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">

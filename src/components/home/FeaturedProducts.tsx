@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import ProductCard from '../products/ProductCard';
 import { supabase } from '@/lib/supabaseClient'; // <--- Az önce oluşturduğumuz bağlantı
 
@@ -42,7 +43,7 @@ export default async function FeaturedProducts() {
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-green-900">Çok Satanlar</h2>
             <p className="text-stone-500 mt-2">Bu ay balkonlarda en çok bunlar büyüyor.</p>
           </div>
-          <a href="#" className="text-green-700 font-semibold hover:underline hidden md:block">Tümünü Gör →</a>
+          <Link href="/magaza" className="text-green-700 font-semibold hover:underline hidden md:block">Tümünü Gör →</Link>
         </div>
 
         {/* Ürün Listesi */}
@@ -66,7 +67,7 @@ export default async function FeaturedProducts() {
         )}
 
         <div className="mt-8 text-center md:hidden">
-             <a href="#" className="text-green-700 font-semibold hover:underline">Tümünü Gör →</a>
+             <Link href="/magaza" className="text-green-700 font-semibold hover:underline">Tümünü Gör →</Link>
         </div>
       </div>
     </section>

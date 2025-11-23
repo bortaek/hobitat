@@ -28,9 +28,10 @@ export default function Header() {
           {/* MENÜ LİNKLERİ (Masaüstü) */}
           <nav className="hidden md:flex gap-8 text-stone-600 font-medium">
             <Link href="/magaza" className="hover:text-green-700 transition">Tüm Ürünler</Link>
-            <Link href="/magaza" className="hover:text-green-700 transition">Meyve Fideleri</Link>
-            <Link href="/magaza" className="hover:text-green-700 transition">Sebze Fideleri</Link>
-            <Link href="/magaza" className="hover:text-green-700 transition">Toprak & Gübre</Link>
+            <Link href="/magaza?kategori=Meyve" className="hover:text-green-700 transition">Meyve Fideleri</Link>
+            <Link href="/magaza?kategori=Sebze" className="hover:text-green-700 transition">Sebze Fideleri</Link>
+            <Link href="/magaza?kategori=Toprak" className="hover:text-green-700 transition">Toprak & Gübre</Link>
+            <Link href="/blog" className="hover:text-green-700 transition">Blog</Link>
           </nav>
 
           {/* SAĞ TARAF (İkonlar) */}
