@@ -36,8 +36,8 @@ export default function Footer() {
               <li><Link href="/hakkimizda" className="hover:text-green-500 transition">Hakkımızda</Link></li>
               <li><Link href="/iletisim" className="hover:text-green-500 transition">İletişim</Link></li>
               <li><Link href="/sss" className="hover:text-green-500 transition">Sıkça Sorulan Sorular (SSS)</Link></li>
-              <li><Link href="#" className="hover:text-green-500 transition">Kargo ve Teslimat</Link></li>
-              <li><Link href="#" className="hover:text-green-500 transition">İade Politikası</Link></li>
+              <li><Link href="/kargo-ve-teslimat" className="hover:text-green-500 transition">Kargo ve Teslimat</Link></li>
+              <li><Link href="/iade-politikasi" className="hover:text-green-500 transition">İade Politikası</Link></li>
             </ul>
           </div>
 
