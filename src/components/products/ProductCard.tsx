@@ -1,10 +1,11 @@
 "use client";
 
 import React from 'react';
+import { useToast } from '@/components/context/ToastContext';
 import { ShoppingBag, Star } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import FavoriteButton from './FavoriteButton'; // <--- YENİ EKLEME
+import FavoriteButton from './FavoriteButton'; 
 import { useCart } from '@/components/context/CartContext';
 
 export interface ProductCardProps {
@@ -18,19 +19,15 @@ export interface ProductCardProps {
 
 export default function ProductCard({ id, title, price, image, category, stock }: ProductCardProps) {
   const { addToCart } = useCart();
+  const { success, warning, error: toastError } = useToast();
   const isOutOfStock = stock !== undefined && stock <= 0;
 
   const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Test için alert
-    alert(`Sepete ekleniyor: ${title}`);
-    
-    console.log('Sepete ekle butonuna tıklandı:', { id, title, price, stock });
-    
     if (isOutOfStock) {
-      alert('Üzgünüz, bu ürün stokta bulunmamaktadır.');
+      warning('Üzgünüz, bu ürün stokta bulunmamaktadır.');
       return;
     }
 
@@ -42,10 +39,10 @@ export default function ProductCard({ id, title, price, image, category, stock }
         image,
         stock,
       });
-      console.log('Ürün sepete eklendi');
-    } catch (error) {
+      success(`${title} sepete eklendi`);
+    } catch (error: any) {
       console.error('Sepete ekleme hatası:', error);
-      alert('Bir hata oluştu: ' + error);
+      toastError(error.message || 'Bir hata oluştu');
     }
   };
 
