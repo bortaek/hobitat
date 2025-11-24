@@ -352,6 +352,7 @@ export default function AdminPage() {
         imageUrl = editingProduct.image_url;
       } else {
         // Yeni ürün eklerken resim zorunlu
+        setIsSaving(false);
         return warning("Resim seçiniz!");
       }
 
@@ -383,7 +384,7 @@ export default function AdminPage() {
       setImagePreview(null);
 
     } catch (error: any) {
-      alert("Hata: " + error.message);
+      showError("Hata: " + error.message);
     } finally {
       setIsSaving(false);
     }
@@ -494,7 +495,7 @@ export default function AdminPage() {
       fetchBlogs();
 
     } catch (error: any) {
-      alert("Hata: " + error.message);
+      showError("Hata: " + error.message);
     } finally {
       setIsSaving(false);
     }
