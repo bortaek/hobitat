@@ -36,26 +36,31 @@ UPDATE products
 SET image_url = 'https://images.unsplash.com/photo-1447875562698-58d7055dc96a?auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Kokteyl Domates';
 
--- PATLICAN GRUBU
+-- PATLICAN GRUBU (KULLANICI İSTEĞİ ÜZERİNE GÜNCELLENDİ)
+-- Patlıcan Fidesi
+UPDATE products 
+SET image_url = 'https://images.unsplash.com/photo-1613881553903-4543f5f2cac9?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
+WHERE title = 'Patlıcan Fidesi';
+
 -- Aşılı Patlıcan
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1615485500704-3e995f85aa2f?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1613881553903-4543f5f2cac9?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Aşılı Patlıcan';
 
--- HIYAR GRUBU
+-- HIYAR GRUBU (KULLANICI İSTEĞİ ÜZERİNE GÜNCELLENDİ)
 -- Hıyar Fidesi
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1518568403628-df55701ade9e?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Hıyar Fidesi';
 
 -- Aşılı Hıyar
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1518568403628-df55701ade9e?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Aşılı Hıyar';
 
 -- Kornişon
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1602016320961-da422f5e5741?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1518568403628-df55701ade9e?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Kornişon';
 
 -- LAHANA VE BROKOLİ GRUBU
@@ -105,10 +110,15 @@ UPDATE products
 SET image_url = 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Jalapeno Biber';
 
--- MEYVE GRUBU
+-- MEYVE GRUBU (KULLANICI İSTEĞİ ÜZERİNE GÜNCELLENDİ)
+-- Karpuz Fidesi
+UPDATE products 
+SET image_url = 'https://images.unsplash.com/photo-1720239278431-bf2a0c838180?q=80&w=687&auto=format&fit=crop&w=800&q=80' 
+WHERE title = 'Karpuz Fidesi';
+
 -- Aşılı Karpuz
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1589539159425-7b61ce7bd57c?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1720239278431-bf2a0c838180?q=80&w=687&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Aşılı Karpuz';
 
 -- Kavun Fidesi

@@ -19,13 +19,13 @@ INSERT INTO products (title, category, price, image_url, description) VALUES
 ('Kokteyl Domates', 'Sebze', 17.00, 'https://images.unsplash.com/photo-1447875562698-58d7055dc96a?auto=format&fit=crop&w=800&q=80', 'Orta boy kokteyl domates fidesi. Salata ve yemekler için mükemmel.'),
 
 -- Patlıcan Çeşitleri (Eggplant)
-('Patlıcan Fidesi', 'Sebze', 15.00, 'https://images.unsplash.com/photo-1595093741759-8e4acda07670?auto=format&fit=crop&w=800&q=80', 'Klasik patlıcan fidesi. Türk mutfağının vazgeçilmezi.'),
-('Aşılı Patlıcan', 'Sebze', 28.00, 'https://images.unsplash.com/photo-1615485500704-3e995f85aa2f?auto=format&fit=crop&w=800&q=80', 'Aşılı patlıcan fidesi. Daha erken hasat ve yüksek verim.'),
+('Patlıcan Fidesi', 'Sebze', 15.00, 'https://images.unsplash.com/photo-1613881553903-4543f5f2cac9?q=80&w=1170&auto=format&fit=crop&w=800&q=80', 'Klasik patlıcan fidesi. Türk mutfağının vazgeçilmezi.'),
+('Aşılı Patlıcan', 'Sebze', 28.00, 'https://images.unsplash.com/photo-1613881553903-4543f5f2cac9?q=80&w=1170&auto=format&fit=crop&w=800&q=80', 'Aşılı patlıcan fidesi. Daha erken hasat ve yüksek verim.'),
 
 -- Hıyar Çeşitleri (Cucumber)
-('Hıyar Fidesi', 'Sebze', 13.00, 'https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=800&q=80', 'Taze hıyar fidesi. Salatalarınız için ideal.'),
-('Aşılı Hıyar', 'Sebze', 24.00, 'https://images.unsplash.com/photo-1592841200221-a6898f307baa?auto=format&fit=crop&w=800&q=80', 'Aşılı hıyar fidesi. Daha dayanıklı ve verimli.'),
-('Kornişon', 'Sebze', 15.00, 'https://images.unsplash.com/photo-1602016320961-da422f5e5741?auto=format&fit=crop&w=800&q=80', 'Küçük boy kornişon hıyar fidesi. Turşu için mükemmel.'),
+('Hıyar Fidesi', 'Sebze', 13.00, 'https://images.unsplash.com/photo-1518568403628-df55701ade9e?q=80&w=1170&auto=format&fit=crop&w=800&q=80', 'Taze hıyar fidesi. Salatalarınız için ideal.'),
+('Aşılı Hıyar', 'Sebze', 24.00, 'https://images.unsplash.com/photo-1518568403628-df55701ade9e?q=80&w=1170&auto=format&fit=crop&w=800&q=80', 'Aşılı hıyar fidesi. Daha dayanıklı ve verimli.'),
+('Kornişon', 'Sebze', 15.00, 'https://images.unsplash.com/photo-1518568403628-df55701ade9e?q=80&w=1170&auto=format&fit=crop&w=800&q=80', 'Küçük boy kornişon hıyar fidesi. Turşu için mükemmel.'),
 
 -- Lahana ve Brokoli (Cabbage & Broccoli)
 ('Brokoli Fidesi', 'Sebze', 18.00, 'https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?auto=format&fit=crop&w=800&q=80', 'Sağlıklı brokoli fidesi. Vitamin deposu.'),
@@ -42,8 +42,8 @@ INSERT INTO products (title, category, price, image_url, description) VALUES
 ('Jalapeno Biber', 'Sebze', 17.00, 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80', 'Jalapeno biber fidesi. Orta acılık, Meksika mutfağı için.'),
 
 -- MEYVELER
-('Karpuz Fidesi', 'Meyve', 20.00, 'https://images.unsplash.com/photo-1592496431122-2349e0fbc666?auto=format&fit=crop&w=800&q=80', 'Tatlı ve sulu karpuz fidesi. Yaz mevsimi için.'),
-('Aşılı Karpuz', 'Meyve', 35.00, 'https://images.unsplash.com/photo-1589539159425-7b61ce7bd57c?auto=format&fit=crop&w=800&q=80', 'Aşılı karpuz fidesi. Daha erken hasat ve yüksek verim.'),
+('Karpuz Fidesi', 'Meyve', 20.00, 'https://images.unsplash.com/photo-1720239278431-bf2a0c838180?q=80&w=687&auto=format&fit=crop&w=800&q=80', 'Tatlı ve sulu karpuz fidesi. Yaz mevsimi için.'),
+('Aşılı Karpuz', 'Meyve', 35.00, 'https://images.unsplash.com/photo-1720239278431-bf2a0c838180?q=80&w=687&auto=format&fit=crop&w=800&q=80', 'Aşılı karpuz fidesi. Daha erken hasat ve yüksek verim.'),
 ('Kavun Fidesi', 'Meyve', 18.00, 'https://images.unsplash.com/photo-1594356865706-76650397322f?auto=format&fit=crop&w=800&q=80', 'Aromatik kavun fidesi. Balkon için uygun.'),
 ('Çilek Fidesi', 'Meyve', 22.00, 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=800&q=80', 'Tatlı çilek fidesi. Saksıda yetiştirmeye uygun.');
 
