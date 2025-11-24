@@ -20,25 +20,30 @@ UPDATE products
 SET image_url = 'https://images.unsplash.com/photo-1584650795276-da2ee6f2f4ec?q=80&w=687&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Yağlı Marul';
 
--- DOMATES GRUBU
+-- DOMATES GRUBU (KULLANICI İSTEĞİ ÜZERİNE GÜNCELLENDİ)
+-- Domates Fidesi
+UPDATE products 
+SET image_url = 'https://images.unsplash.com/photo-1534940519139-f860fb3c6e38?q=80&w=1167&auto=format&fit=crop&w=800&q=80' 
+WHERE title = 'Domates Fidesi';
+
 -- Aşılı Domates
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1591951425328-48c1fe7179cd?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1534940519139-f860fb3c6e38?q=80&w=1167&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Aşılı Domates';
 
 -- Sırık Domates
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1524593166156-311f36f63c7c?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1534940519139-f860fb3c6e38?q=80&w=1167&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Sırık Domates';
 
 -- Cherry Domates
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1561136120-f8146f43619b?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1534940519139-f860fb3c6e38?q=80&w=1167&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Cherry Domates';
 
 -- Kokteyl Domates
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1447875562698-58d7055dc96a?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1534940519139-f860fb3c6e38?q=80&w=1167&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Kokteyl Domates';
 
 -- PATLICAN GRUBU (KULLANICI İSTEĞİ ÜZERİNE GÜNCELLENDİ)
@@ -131,5 +136,10 @@ UPDATE products
 SET image_url = 'https://images.unsplash.com/photo-1617603420966-5f17dedd5d3e?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Kavun Fidesi';
 
--- KONTROL
+-- Çilek Fidesi
+UPDATE products 
+SET image_url = 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=800&q=80' 
+WHERE title = 'Tatlı çilek fidesi';
+
+-- Kontrol sorgusu - Eklenen ürünleri görmek için:
 -- SELECT title, image_url FROM products;
