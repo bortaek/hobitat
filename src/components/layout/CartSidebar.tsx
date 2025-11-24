@@ -3,11 +3,22 @@
 import React from 'react';
 import { X, Trash2, ShoppingBag, ArrowRight, Plus, Minus } from 'lucide-react';
 import { useCart } from '@/components/context/CartContext';
-import Link from 'next/link'; // <--- Link bileşenini çağırdık
-import CartCrossSell from '@/components/products/CartCrossSell'; // <--- SEPET ÇAPRAZ SATIŞ
+import Link from 'next/link';
+import CartCrossSell from '@/components/products/CartCrossSell';
+import { useToast } from '@/components/context/ToastContext';
 
 export default function CartSidebar() {
   const { isCartOpen, toggleCart, items, removeFromCart, updateQuantity, totalPrice } = useCart();
+  const { warning } = useToast();
+
+  const handleQuantityChange = (id: number, newQuantity: number) => {
+    try {
+      updateQuantity(id, newQuantity);
+    } catch (err: any) {
+      const message = err.message.replace('Error: ', '');
+      warning(message);
+    }
+  };
 
   // Sepet kapalıysa render etme
   if (!isCartOpen) return null;
@@ -66,7 +77,7 @@ export default function CartSidebar() {
                     <span className="text-xs text-stone-600 dark:text-stone-400 font-medium">Adet:</span>
                     <div className="flex items-center gap-2 bg-stone-100 dark:bg-stone-800 rounded-lg">
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                         className="p-1.5 hover:bg-stone-200 dark:hover:bg-stone-700 rounded transition active:scale-95"
                         aria-label="Miktarı azalt"
                       >
@@ -76,7 +87,7 @@ export default function CartSidebar() {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                         disabled={item.stock !== undefined && item.quantity >= item.stock}
                         className="p-1.5 hover:bg-stone-200 dark:hover:bg-stone-700 rounded transition active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                         aria-label="Miktarı artır"

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useToast } from './ToastContext';
 
 interface CartItem {
   id: number;
@@ -16,8 +15,8 @@ interface CartContextType {
   items: CartItem[];
   addToCart: (product: any) => void;
   removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void; // <--- YENİ: MİKTAR GÜNCELLEME
-  clearCart: () => void; // <--- YENİ ÖZELLİK
+  updateQuantity: (id: number, quantity: number) => void;
+  clearCart: () => void;
   totalItems: number;
   totalPrice: number;
   isCartOpen: boolean;
@@ -29,9 +28,8 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { success, error, warning } = useToast();
 
-  // Sepeti yerel depolamadan (localStorage) yükle - İsteğe bağlı, sayfa yenilenince sepet gitmesin diye
+  // Sepeti yerel depolamadan (localStorage) yükle
   useEffect(() => {
     const savedCart = localStorage.getItem('cart');
     if (savedCart) {
@@ -47,8 +45,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const addToCart = (product: any) => {
     // Stok kontrolü
     if (product.stock !== undefined && product.stock <= 0) {
-      error('Üzgünüz, bu ürün stokta bulunmamaktadır.');
-      return;
+      throw new Error('Üzgünüz, bu ürün stokta bulunmamaktadır.');
     }
 
     setItems(currentItems => {
@@ -58,17 +55,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (existingItem) {
         const newQuantity = existingItem.quantity + 1;
         if (product.stock !== undefined && newQuantity > product.stock) {
-          warning(`Üzgünüz, stokta sadece ${product.stock} adet bulunmaktadır.`);
-          return currentItems;
+          throw new Error(`Üzgünüz, stokta sadece ${product.stock} adet bulunmaktadır.`);
         }
-        success('Sepet güncellendi');
         return currentItems.map(item =>
           item.id === product.id ? { ...item, quantity: newQuantity } : item
         );
       }
       
       // Yeni ürün ekleme
-      success(`${product.title} sepete eklendi`);
       return [...currentItems, { ...product, quantity: 1 }];
     });
     setIsCartOpen(true);
@@ -78,21 +72,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems(currentItems => currentItems.filter(item => item.id !== id));
   };
 
-  // --- YENİ: MİKTAR GÜNCELLEME FONKSİYONU ---
   const updateQuantity = (id: number, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(id);
       return;
     }
 
+    // Stok kontrolü için mevcut item'ı bulmamız lazım, ama setItems içinde yaparsak throw edemeyiz (render phase hatası olur)
+    // Bu yüzden önce kontrol edelim.
+    const currentItem = items.find(item => item.id === id);
+    if (currentItem && currentItem.stock !== undefined && quantity > currentItem.stock) {
+       throw new Error(`Üzgünüz, stokta sadece ${currentItem.stock} adet bulunmaktadır.`);
+    }
+
     setItems(currentItems => {
       return currentItems.map(item => {
         if (item.id === id) {
-          // Stok kontrolü
-          if (item.stock !== undefined && quantity > item.stock) {
-            warning(`Üzgünüz, stokta sadece ${item.stock} adet bulunmaktadır.`);
-            return item;
-          }
           return { ...item, quantity };
         }
         return item;
@@ -100,10 +95,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  // --- YENİ: SEPETİ BOŞALT FONKSİYONU ---
   const clearCart = () => {
     setItems([]);
-    localStorage.removeItem('cart'); // Hafızadan da sil
+    localStorage.removeItem('cart');
   };
 
   const toggleCart = () => setIsCartOpen(prev => !prev);
