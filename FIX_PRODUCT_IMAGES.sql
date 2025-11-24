@@ -4,15 +4,20 @@
 -- Hatalı veya tekrarlayan ürün resimlerini doğru görsellerle günceller
 -- ============================================
 
--- MARUL GRUBU
+-- MARUL GRUBU (KULLANICI İSTEĞİ ÜZERİNE GÜNCELLENDİ)
+-- Kıvırcık Marul
+UPDATE products 
+SET image_url = 'https://images.unsplash.com/photo-1584650795276-da2ee6f2f4ec?q=80&w=687&auto=format&fit=crop&w=800&q=80' 
+WHERE title = 'Kıvırcık Marul';
+
 -- Iceberg Marul
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1584650795276-da2ee6f2f4ec?q=80&w=687&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Iceberg Marul';
 
 -- Yağlı Marul
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1644317767998-3f93f6784807?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1584650795276-da2ee6f2f4ec?q=80&w=687&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Yağlı Marul';
 
 -- DOMATES GRUBU
