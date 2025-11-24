@@ -24,7 +24,7 @@ export default function CartSidebar() {
   if (!isCartOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex justify-end">
+    <div className="fixed inset-0 z-[9999] flex justify-end">
       {/* KARARTMA PERDESİ */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"

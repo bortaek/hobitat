@@ -14,7 +14,7 @@ export default function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] md:hidden">
+    <div className="fixed inset-0 z-[9999] md:hidden">
       {/* KARARTMA PERDESİ (Arka plana tıklayınca kapanır) */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
