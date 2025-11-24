@@ -13,7 +13,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#F9F8F6]/90 dark:bg-stone-950/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 transition-colors duration-300">
+      <header className="sticky top-0 z-[1000] bg-[#F9F8F6]/90 dark:bg-stone-950/90 backdrop-blur-md border-b border-stone-200 dark:border-stone-800 transition-colors duration-300">
         <div className="container mx-auto px-6 h-20 flex items-center justify-between">
           
           {/* LOGO */}
