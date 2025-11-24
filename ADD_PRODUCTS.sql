@@ -34,12 +34,12 @@ INSERT INTO products (title, category, price, image_url, description) VALUES
 ('Karnabahar Fidesi', 'Sebze', 16.00, 'https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?auto=format&fit=crop&w=800&q=80', 'Lezzetli karnabahar fidesi. Kış sebzesi.'),
 
 -- Biber Çeşitleri (Pepper)
-('Acı Kıl Biber', 'Sebze', 14.00, 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?auto=format&fit=crop&w=800&q=80', 'Acı kıl biber fidesi. Baharatlı yemekler için.'),
-('Tatlı Kıl Biber', 'Sebze', 13.00, 'https://images.unsplash.com/photo-1563567516-5a1742a4c69f?auto=format&fit=crop&w=800&q=80', 'Tatlı kıl biber fidesi. Salata ve yemekler için.'),
-('Dolma Biber', 'Sebze', 15.00, 'https://images.unsplash.com/photo-1588601015554-9e1e362f6e45?auto=format&fit=crop&w=800&q=80', 'Dolma biber fidesi. Büyük ve dolgun.'),
-('Demre Biber', 'Sebze', 16.00, 'https://images.unsplash.com/photo-1590638609102-903764066421?auto=format&fit=crop&w=800&q=80', 'Demre biber fidesi. Özel lezzet.'),
-('Çarliston Biber', 'Sebze', 14.00, 'https://images.unsplash.com/photo-1611323984684-8943e10197df?auto=format&fit=crop&w=800&q=80', 'Çarliston biber fidesi. Uzun ve ince.'),
-('Jalapeno Biber', 'Sebze', 17.00, 'https://images.unsplash.com/photo-1588252303782-747a7214a088?auto=format&fit=crop&w=800&q=80', 'Jalapeno biber fidesi. Orta acılık, Meksika mutfağı için.'),
+('Acı Kıl Biber', 'Sebze', 14.00, 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80', 'Acı kıl biber fidesi. Baharatlı yemekler için.'),
+('Tatlı Kıl Biber', 'Sebze', 13.00, 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80', 'Tatlı kıl biber fidesi. Salata ve yemekler için.'),
+('Dolma Biber', 'Sebze', 15.00, 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80', 'Dolma biber fidesi. Büyük ve dolgun.'),
+('Demre Biber', 'Sebze', 16.00, 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80', 'Demre biber fidesi. Özel lezzet.'),
+('Çarliston Biber', 'Sebze', 14.00, 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80', 'Çarliston biber fidesi. Uzun ve ince.'),
+('Jalapeno Biber', 'Sebze', 17.00, 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80', 'Jalapeno biber fidesi. Orta acılık, Meksika mutfağı için.'),
 
 -- MEYVELER
 ('Karpuz Fidesi', 'Meyve', 20.00, 'https://images.unsplash.com/photo-1592496431122-2349e0fbc666?auto=format&fit=crop&w=800&q=80', 'Tatlı ve sulu karpuz fidesi. Yaz mevsimi için.'),

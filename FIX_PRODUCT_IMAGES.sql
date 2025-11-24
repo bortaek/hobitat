@@ -74,30 +74,35 @@ UPDATE products
 SET image_url = 'https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Karnabahar Fidesi';
 
--- BİBER GRUBU
+-- BİBER GRUBU (KULLANICI İSTEĞİ ÜZERİNE GÜNCELLENDİ)
+-- Acı Kıl Biber
+UPDATE products 
+SET image_url = 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
+WHERE title = 'Acı Kıl Biber';
+
 -- Tatlı Kıl Biber
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1563567516-5a1742a4c69f?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Tatlı Kıl Biber';
 
 -- Dolma Biber
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1588601015554-9e1e362f6e45?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Dolma Biber';
 
 -- Demre Biber
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1590638609102-903764066421?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Demre Biber';
 
 -- Çarliston Biber
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1611323984684-8943e10197df?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Çarliston Biber';
 
 -- Jalapeno Biber
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1588252303782-747a7214a088?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1662517507177-1a8ec897890e?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Jalapeno Biber';
 
 -- MEYVE GRUBU
@@ -113,4 +118,3 @@ WHERE title = 'Kavun Fidesi';
 
 -- KONTROL
 -- SELECT title, image_url FROM products;
-
