@@ -123,7 +123,7 @@ WHERE title = 'Aşılı Karpuz';
 
 -- Kavun Fidesi
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1594356865706-76650397322f?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1617603420966-5f17dedd5d3e?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Kavun Fidesi';
 
 -- KONTROL

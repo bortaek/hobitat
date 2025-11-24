@@ -44,7 +44,7 @@ INSERT INTO products (title, category, price, image_url, description) VALUES
 -- MEYVELER
 ('Karpuz Fidesi', 'Meyve', 20.00, 'https://images.unsplash.com/photo-1720239278431-bf2a0c838180?q=80&w=687&auto=format&fit=crop&w=800&q=80', 'Tatlı ve sulu karpuz fidesi. Yaz mevsimi için.'),
 ('Aşılı Karpuz', 'Meyve', 35.00, 'https://images.unsplash.com/photo-1720239278431-bf2a0c838180?q=80&w=687&auto=format&fit=crop&w=800&q=80', 'Aşılı karpuz fidesi. Daha erken hasat ve yüksek verim.'),
-('Kavun Fidesi', 'Meyve', 18.00, 'https://images.unsplash.com/photo-1594356865706-76650397322f?auto=format&fit=crop&w=800&q=80', 'Aromatik kavun fidesi. Balkon için uygun.'),
+('Kavun Fidesi', 'Meyve', 18.00, 'https://images.unsplash.com/photo-1617603420966-5f17dedd5d3e?q=80&w=1170&auto=format&fit=crop&w=800&q=80', 'Aromatik kavun fidesi. Balkon için uygun.'),
 ('Çilek Fidesi', 'Meyve', 22.00, 'https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=800&q=80', 'Tatlı çilek fidesi. Saksıda yetiştirmeye uygun.');
 
 -- Kontrol sorgusu - Eklenen ürünleri görmek için:
