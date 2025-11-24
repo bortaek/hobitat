@@ -122,13 +122,6 @@ export default function CartSidebar() {
           </div>
         )}
 
-        {/* ÇAPRAZ SATIŞ (Sepette) */}
-        {items.length > 0 && (
-          <div className="px-6 pb-4">
-            <CartCrossSell cartItemIds={items.map(item => item.id)} />
-          </div>
-        )}
-
         {/* ALT KISIM (Toplam & Ödeme Butonu) */}
         {items.length > 0 && (
           <div className="p-6 border-t border-stone-100 dark:border-stone-800 bg-[#F9F8F6] dark:bg-stone-950">
