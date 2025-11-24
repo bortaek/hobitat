@@ -63,15 +63,15 @@ UPDATE products
 SET image_url = 'https://images.unsplash.com/photo-1518568403628-df55701ade9e?q=80&w=1170&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Kornişon';
 
--- LAHANA VE BROKOLİ GRUBU
+-- LAHANA VE BROKOLİ GRUBU (KULLANICI İSTEĞİ ÜZERİNE GÜNCELLENDİ)
 -- Beyaz Lahana
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1550081699-79c1c2e48a77?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1687112258086-178fc0958a85?q=80&w=1073&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Beyaz Lahana';
 
 -- Kırmızı Lahana
 UPDATE products 
-SET image_url = 'https://images.unsplash.com/photo-1556782441-3545d547284c?auto=format&fit=crop&w=800&q=80' 
+SET image_url = 'https://images.unsplash.com/photo-1687112258086-178fc0958a85?q=80&w=1073&auto=format&fit=crop&w=800&q=80' 
 WHERE title = 'Kırmızı Lahana';
 
 -- Karnabahar Fidesi

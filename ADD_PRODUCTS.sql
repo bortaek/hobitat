@@ -29,8 +29,8 @@ INSERT INTO products (title, category, price, image_url, description) VALUES
 
 -- Lahana ve Brokoli (Cabbage & Broccoli)
 ('Brokoli Fidesi', 'Sebze', 18.00, 'https://images.unsplash.com/photo-1584270354949-c26b0d5b4a0c?auto=format&fit=crop&w=800&q=80', 'Sağlıklı brokoli fidesi. Vitamin deposu.'),
-('Beyaz Lahana', 'Sebze', 12.00, 'https://images.unsplash.com/photo-1550081699-79c1c2e48a77?auto=format&fit=crop&w=800&q=80', 'Beyaz lahana fidesi. Turşu ve yemekler için.'),
-('Kırmızı Lahana', 'Sebze', 14.00, 'https://images.unsplash.com/photo-1556782441-3545d547284c?auto=format&fit=crop&w=800&q=80', 'Kırmızı lahana fidesi. Renkli salatalar için.'),
+('Beyaz Lahana', 'Sebze', 12.00, 'https://images.unsplash.com/photo-1687112258086-178fc0958a85?q=80&w=1073&auto=format&fit=crop&w=800&q=80', 'Beyaz lahana fidesi. Turşu ve yemekler için.'),
+('Kırmızı Lahana', 'Sebze', 14.00, 'https://images.unsplash.com/photo-1687112258086-178fc0958a85?q=80&w=1073&auto=format&fit=crop&w=800&q=80', 'Kırmızı lahana fidesi. Renkli salatalar için.'),
 ('Karnabahar Fidesi', 'Sebze', 16.00, 'https://images.unsplash.com/photo-1568584711075-3d021a7c3ca3?auto=format&fit=crop&w=800&q=80', 'Lezzetli karnabahar fidesi. Kış sebzesi.'),
 
 -- Biber Çeşitleri (Pepper)
